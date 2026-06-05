@@ -297,6 +297,22 @@ textarea.fi{resize:vertical;min-height:70px}
 .access-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;gap:8px;color:var(--muted)}
 .access-lock i{font-size:32px;color:var(--faint)}
 .access-lock p{font-size:13px}
+.briefing-area{width:100%;min-height:80px;padding:9px 11px;border:.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text);resize:vertical;line-height:1.6}
+.briefing-area:focus{outline:none;border-color:var(--g)}
+.comment-input{width:100%;padding:9px 11px;border:.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text);resize:none;min-height:60px;line-height:1.6}
+.comment-input:focus{outline:none;border-color:var(--g)}
+.mention-dropdown{position:absolute;bottom:calc(100% + 4px);left:0;background:var(--card);border:.5px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:50;min-width:180px;overflow:hidden;display:none}
+.mention-item{padding:8px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.mention-item:hover{background:var(--hover)}
+.comment-entry{padding:10px 0;border-bottom:.5px solid var(--border)}
+.comment-entry:last-child{border-bottom:none}
+.comment-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.comment-av2{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.comment-autor{font-size:12px;font-weight:600}
+.comment-ts{font-size:10px;color:var(--muted)}
+.comment-text{font-size:12px;line-height:1.5}
+.comment-mention{color:var(--g);font-weight:500}
+.envolvido-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--hover);border-radius:20px;font-size:11px;margin:2px}
 /* TASKS */
 .task-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:.5px solid var(--border)}
 .task-item:last-child{border-bottom:none}
@@ -578,11 +594,11 @@ let currentUser='irene';
 // JOBS
 let jobs=[
   {id:1,num:'2.6.1',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
-   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}],tarefas:[{id:1,titulo:'Briefing',resp:'Jéssica Sousa',prazo:'2026-06-08',done:false},{id:2,titulo:'Texto pronto',resp:'Ana Ingrid',prazo:'2026-06-09',done:true}],prazoInterno:'2026-06-09',prazoFinal:'2026-06-10'},
+   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}],tarefas:[{id:1,titulo:'Briefing',cargo:'Operações',prazo:'2026-06-08',done:false},{id:2,titulo:'Texto pronto',cargo:'Redação',prazo:'2026-06-09',done:true}],prazoInterno:'2026-06-09',prazoFinal:'2026-06-10',briefing:'POST 1 — Layout fixado criado pela Estúdio i.',comentarios:[{id:1,autor:'Jéssica Sousa',texto:'@AnaIngrid texto pronto para criação',ts:'30/05 às 09:12',mencoes:['Ana Ingrid']}],envolvidos:['Jéssica Sousa','Ana Ingrid','Ana Luiza']},
   {id:2,num:'2.6.2',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:37',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 11:00',n:'Em andamento'}]},
   {id:3,num:'1.6.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',projNum:'1.6',proj:'ABC Prosperity — Jun/26',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
-   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}],tarefas:[{id:3,titulo:'Agendar post Instagram',resp:'Jéssica Sousa',prazo:'2026-06-15',done:false}],prazoInterno:'2026-06-14',prazoFinal:'2026-06-16'},
+   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}],tarefas:[{id:3,titulo:'Agendar post Instagram',cargo:'Agendamento',prazo:'2026-06-15',done:false}],prazoInterno:'2026-06-14',prazoFinal:'2026-06-16',briefing:'POST 16 — Legado empresarial. Publicar no Instagram e LinkedIn.',comentarios:[{id:2,autor:'Jéssica Sousa',texto:'@AnaIngrid aprovado! Pode agendar.',ts:'30/05 às 09:00',mencoes:['Ana Ingrid']}],envolvidos:['Jéssica Sousa','Ana Ingrid','Ana Luiza']},
   {id:4,num:'3.6.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',projNum:'3.6',proj:'Gontijo Mendes — Jun/26',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Job criado'}]},
   {id:5,num:'2.6.3',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
@@ -807,47 +823,59 @@ function rPanel(j){
     const hist=j.hist.filter(h=>h.e===f.e);const last=hist[hist.length-1];
     const dc=isDone?'done':isActive?'active':'idle';
     const icon=isDone?'<i class="ti ti-check"></i>':isActive?'<i class="ti ti-loader-2"></i>':i+1;
-    return `<div class="fstep">${i<FLUXO.length-1?'<div class="fline"></div>':''}<div class="fdot ${dc}">${icon}</div><div class="fi2"><div class="fn">${f.e}</div><div class="fw">${f.r} · <span class="fem">${f.em}</span></div>${last?`<div class="fts">${last.ts}</div><div class="fnote">${last.n}</div>`:''}</div></div>`;
+    return '<div class="fstep">'+(i<FLUXO.length-1?'<div class="fline"></div>':'')
+      +'<div class="fdot '+dc+'">'+icon+'</div>'
+      +'<div class="fi2"><div class="fn">'+f.e+'</div>'
+      +'<div class="fw">'+f.r+' · <span class="fem">'+f.em+'</span></div>'
+      +(last?'<div class="fts">'+last.ts+'</div><div class="fnote">'+last.n+'</div>':'')
+      +'</div></div>';
   }).join('');
-  const concl=done?`<div class="fstep"><div class="fdot done" style="background:#EAF3DE;color:#27500A"><i class="ti ti-flag"></i></div><div class="fi2"><div class="fn">Concluído</div></div></div>`:'';
-  const rcSel=j.etapa==='Criação'?`<div style="margin-bottom:14px;padding:10px 12px;background:var(--hover);border-radius:8px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Responsável pela Criação</div><select class="fi" onchange="setRC(${j.id},this.value)"><option${j.rc==='Ana Luiza'?' selected':''}>Ana Luiza</option><option${j.rc==='Bruno'?' selected':''}>Bruno</option></select></div>`:'';
-  document.getElementById('p-body').innerHTML=`<div class="tabs" style="margin-bottom:14px">
-    <div class="tab on" onclick="panelTab(this,'fluxo')">Fluxo</div>
-    <div class="tab" onclick="panelTab(this,'tarefas')">Tarefas <span style="font-size:10px;background:${(j.tarefas||[]).filter(t=>!t.done).length>0?'var(--aml)':'var(--gl)'};color:${(j.tarefas||[]).filter(t=>!t.done).length>0?'var(--am)':'var(--gd)'};border-radius:10px;padding:1px 5px">${(j.tarefas||[]).filter(t=>!t.done).length}/${(j.tarefas||[]).length}</span></div>
-    <div class="tab" onclick="panelTab(this,'anexos')">Anexos <span id="anexos-count-${j.id}" style="font-size:10px;background:var(--gl);color:var(--gd);border-radius:10px;padding:1px 5px;margin-left:2px">${(jobAnexos[j.id]||[]).length||''}</span></div>
-  </div>
-  <div id="tab-fluxo" class="tab-content on">
-  <div class="sec-label">Fluxo de produção</div><div style="margin-bottom:16px">${steps}${concl}</div>${rcSel}<div class="sec-label">Status</div><select class="fi" onchange="setSt(${j.id},this.value)" style="margin-bottom:14px"><option${j.status==='No prazo'?' selected':''}>No prazo</option><option${j.status==='Em atraso'?' selected':''}>Em atraso</option><option${j.status==='Pendente'?' selected':''}>Pendente</option></select>`;
+  const concl=done?'<div class="fstep"><div class="fdot done" style="background:#EAF3DE;color:#27500A"><i class="ti ti-flag"></i></div><div class="fi2"><div class="fn">Concluído</div></div></div>':'';
+  const rcSel=j.etapa==='Criação'?'<div style="margin-bottom:14px;padding:10px 12px;background:var(--hover);border-radius:8px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Responsável pela Criação</div><select class="fi" onchange="setRC('+j.id+',this.value)"><option'+(j.rc==='Ana Luiza'?' selected':'')+'">Ana Luiza</option><option'+(j.rc==='Bruno'?' selected':'')+'">Bruno</option></select></div>':'';
+  const fluxoHTML='<div id="tab-fluxo" class="tab-content">'
+    +'<div class="sec-label">Fluxo de produção</div>'
+    +'<div style="margin-bottom:16px">'+steps+concl+'</div>'
+    +rcSel
+    +'<div class="sec-label">Status</div>'
+    +'<select class="fi" onchange="setSt('+j.id+',this.value)">'
+    +'<option'+(j.status==='No prazo'?' selected':'')+'>No prazo</option>'
+    +'<option'+(j.status==='Em atraso'?' selected':'')+'>Em atraso</option>'
+    +'<option'+(j.status==='Pendente'?' selected':'')+'>Pendente</option>'
+    +'</select></div>';
+  const tarefasCount=(j.tarefas||[]).filter(t=>!t.done).length;
+  const comsCount=(j.comentarios||[]).length;
+  const tabsHTML='<div class="tabs" style="margin-bottom:14px">'
+    +'<div class="tab on" onclick="panelTab(this,'briefing')">Briefing</div>'
+    +'<div class="tab" onclick="panelTab(this,'tarefas')">Tarefas'+(tarefasCount?'<span style="font-size:10px;background:var(--aml);color:var(--am);border-radius:10px;padding:1px 5px;margin-left:3px">'+tarefasCount+'</span>':'')+'</div>'
+    +'<div class="tab" onclick="panelTab(this,'comentarios')">Comentários'+(comsCount?'<span style="font-size:10px;background:var(--bl);color:var(--b);border-radius:10px;padding:1px 5px;margin-left:3px">'+comsCount+'</span>':'')+'</div>'
+    +'<div class="tab" onclick="panelTab(this,'fluxo')">Fluxo</div>'
+    +'<div class="tab" onclick="panelTab(this,'anexos')">Anexos</div>'
+    +'</div>';
+  const body=document.getElementById('p-body');
+  body.innerHTML=tabsHTML
+    +buildBriefingHTML(j.id)
+    +buildTarefasHTML(j.id).replace('id="tab-tarefas" class="tab-content"','id="tab-tarefas" class="tab-content" style="display:none"')
+    +buildComentariosHTML(j.id).replace('id="tab-comentarios" class="tab-content"','id="tab-comentarios" class="tab-content" style="display:none"')
+    +fluxoHTML.replace('id="tab-fluxo" class="tab-content"','id="tab-fluxo" class="tab-content" style="display:none"');
+  // Anexos tab
+  const equipeOpts=colabs.map(c=>'<option>'+c.nome+'</option>').join('');
+  const anexosHtml='<div id="tab-anexos" class="tab-content" style="display:none">'
+    +'<div id="drive-files-'+j.id+'"></div>'
+    +'<div class="drive-drop" id="drop-'+j.id+'" ondragover="event.preventDefault()" ondrop="handleDrop(event,'+j.id+')" onclick="triggerUpload('+j.id+')">'
+    +'<i class="ti ti-cloud-upload"></i>'
+    +'<div style="font-size:12px;font-weight:500">Arraste arquivos aqui ou clique para selecionar</div>'
+    +'<div style="font-size:11px;margin-top:3px">Qualquer tipo de arquivo</div></div>'
+    +'<input type="file" id="file-input-'+j.id+'" multiple style="display:none" onchange="uploadFiles(this.files,'+j.id+')">'
+    +'<div id="upload-progress-'+j.id+'"></div></div>';
+  body.innerHTML+=anexosHtml;
+  rDriveFiles(j.id);
+  // Build foot buttons
   let foot='';
-  if(done){foot=`<div style="text-align:center;font-size:12px;color:var(--muted)"><i class="ti ti-flag"></i> Job concluído</div>`;}
-  else if(j.etapa==='Revisão'){foot=`<button class="btn btng" onclick="avancar(${j.id})"><i class="ti ti-check"></i> Aprovar → Agendamento</button><button class="btn" onclick="reprovar(${j.id},'Criação')"><i class="ti ti-arrow-back"></i> Devolver à Criação</button><button class="btn" onclick="reprovar(${j.id},'Redação')"><i class="ti ti-arrow-back"></i> Devolver à Redação</button>`;}
-  else if(j.etapa==='Agendamento'){foot=`<button class="btn btng" onclick="concluir(${j.id})"><i class="ti ti-flag"></i> Marcar como concluído</button>`;}
-  else{const label=j.etapa==='Operações'?'Entregar para Redação':j.etapa==='Redação'?'Entregar para Criação':j.etapa==='Criação'?'Entregar para Revisão':'Avançar';foot=`<button class="btn btng" onclick="avancar(${j.id})"><i class="ti ti-arrow-right"></i> ${label}</button>`;}
+  if(done){foot='<div style="text-align:center;font-size:12px;color:var(--muted)"><i class="ti ti-flag"></i> Job concluído</div>';}
+  else if(j.etapa==='Revisão'){foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-check"></i> Aprovar → Agendamento</button><button class="btn" onclick="reprovar('+j.id+','Criação')"><i class="ti ti-arrow-back"></i> Devolver à Criação</button><button class="btn" onclick="reprovar('+j.id+','Redação')"><i class="ti ti-arrow-back"></i> Devolver à Redação</button>';}
+  else if(j.etapa==='Agendamento'){foot='<button class="btn btng" onclick="concluir('+j.id+')"><i class="ti ti-flag"></i> Marcar como concluído</button>';}
+  else{const label=j.etapa==='Operações'?'Entregar para Redação':j.etapa==='Redação'?'Entregar para Criação':j.etapa==='Criação'?'Entregar para Revisão':'Avançar';foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-arrow-right"></i> '+label+'</button>';}
   document.getElementById('p-foot').innerHTML=foot;
-  // Add close of fluxo tab and anexos tab to body
-  const body = document.getElementById('p-body');
-  // Wrap existing content in fluxo tab if tabs present
-  const fluxoDiv = document.getElementById('tab-fluxo');
-  if(fluxoDiv) {
-    const existingEnd = body.innerHTML.lastIndexOf('</select>');
-    if(existingEnd > 0) {
-      const anexosHtml = `<div id="tab-anexos" class="tab-content">
-        <div id="drive-files-${j.id}"></div>
-        <div class="drive-drop" id="drop-${j.id}" 
-          ondragover="event.preventDefault()" 
-          ondrop="handleDrop(event,${j.id})" 
-          onclick="triggerUpload(${j.id})">
-          <i class="ti ti-cloud-upload"></i>
-          <div style="font-size:12px;font-weight:500">Arraste arquivos aqui ou clique para selecionar</div>
-          <div style="font-size:11px;margin-top:3px">Qualquer tipo de arquivo</div>
-        </div>
-        <input type="file" id="file-input-${j.id}" multiple style="display:none" onchange="uploadFiles(this.files,${j.id})">
-        <div id="upload-progress-${j.id}"></div>
-      </div>`;
-      body.innerHTML = body.innerHTML + anexosHtml;
-      rDriveFiles(j.id);
-    }
-  }
 }
 function setRC(id,v){const j=jobs.find(x=>x.id===id);if(!j)return;j.rc=v;const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=v;f.em=v==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}rPanel(j);}
 function setSt(id,v){const j=jobs.find(x=>x.id===id);if(!j)return;j.status=v;rDash();renderJobs();}
@@ -1044,6 +1072,7 @@ function saveJobDoProjeto(projetoId, nextNum){
   if(f&&(rc==='Ana Luiza'||rc==='Bruno')){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
   jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:p.num,proj:p.nome,etapa:'Operações',prazo:prazoFin,prazoInterno:prazoInt,prazoFinal:prazoFin,status:'Pendente',rc,tarefas:[],hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
   closeM();rProjetos();rDash();renderJobs();
+  const njNew=jobs[0];if(njNew)openPanel(njNew.id);
   toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
 }
 
@@ -1331,7 +1360,11 @@ function saveJob(){
   const prazoInt=document.getElementById('nj-pr-int')?.value||HOJE_STR;
   const prazoFin=document.getElementById('nj-pr-fin')?.value||HOJE_STR;
   jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:projNum,proj:projNome,etapa:'Operações',prazo:prazoFin,prazoInterno:prazoInt,prazoFinal:prazoFin,status:'Pendente',rc,tarefas:[],hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
-  closeM();rDash();renderJobs();toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
+  closeM();rDash();renderJobs();
+  // Open the new job panel automatically
+  const newJob=jobs[0];
+  if(newJob)openPanel(newJob.id);
+  toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
 }
 
 // --- EVENTO CALENDÁRIO ---
@@ -1544,49 +1577,38 @@ async function ensureDriveFolder() {
   }
 }
 
-function buildTarefasHTML(jobId, equipeOpts){
-  const j=jobs.find(x=>x.id===jobId);
-  if(!j)return '';
+function buildTarefasHTML(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return '';
   const tarefas=j.tarefas||[];
-  const tarefasHTML=tarefas.map(t=>`
-    <div class="task-item" id="task-${t.id}">
-      <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${jobId},${t.id})">
-        ${t.done?'<i class="ti ti-check" style="font-size:10px"></i>':''}
-      </div>
-      <div class="task-body">
-        <div class="task-titulo ${t.done?'done':''}">${t.titulo}</div>
-        <div class="task-meta">
-          ${t.resp?`<span><i class="ti ti-user" style="font-size:10px"></i> ${t.resp}</span>`:''}
-          ${t.prazo?`<span><i class="ti ti-calendar" style="font-size:10px"></i> ${fd(t.prazo)}</span>`:''}
-        </div>
-      </div>
-      <button class="ibb" style="font-size:12px;flex-shrink:0" onclick="deleteTask(${jobId},${t.id})"><i class="ti ti-trash"></i></button>
-    </div>`).join('');
-  return `<div id="tab-tarefas" class="tab-content">
-    <div class="prazo-dual">
-      <div class="prazo-item">
-        <label>Prazo interno</label>
-        <input type="date" value="${j.prazoInterno||j.prazo||''}" onchange="setJobPrazo(${jobId},'prazoInterno',this.value)">
-      </div>
-      <div class="prazo-item">
-        <label>Prazo final entrega</label>
-        <input type="date" value="${j.prazoFinal||j.prazo||''}" onchange="setJobPrazo(${jobId},'prazoFinal',this.value)">
-      </div>
-    </div>
-    <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Tarefas <span style="font-weight:400;text-transform:none">(${tarefas.filter(t=>!t.done).length} abertas de ${tarefas.length})</span></div>
-    <div id="tarefas-list-${jobId}">${tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>'}</div>
-    <div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px">
-      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px">Nova tarefa</div>
-      <div class="fg"><input class="fi fi-sm" id="nt-titulo-${jobId}" placeholder="Descrição da tarefa" style="margin-bottom:6px"></div>
-      <div class="frow" style="margin-bottom:6px">
-        <div><select class="fi fi-sm" id="nt-resp-${jobId}"><option value="">— Responsável —</option>${equipeOpts}</select></div>
-        <div><input class="fi fi-sm" type="date" id="nt-prazo-${jobId}"></div>
-      </div>
-      <button class="btn btn-sm btng" onclick="addTarefa(${jobId})"><i class="ti ti-plus"></i> Adicionar tarefa</button>
-    </div>
-  </div>`;
+  const cargos=['Operações','Redação','Criação','Agendamento','Planejamento','Entregue'];
+  const cargoOpts=cargos.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  const tarefasHTML=tarefas.map(t=>{
+    const ci=t.done?'done':'';
+    return '<div class="task-item" id="task-'+t.id+'">'
+      +'<div class="task-check '+ci+'" onclick="toggleTask('+jobId+','+t.id+')">'+(t.done?'<i class="ti ti-check" style="font-size:10px"></i>':'')+'</div>'
+      +'<div class="task-body"><div class="task-titulo '+ci+'">'+t.titulo+'</div>'
+      +'<div class="task-meta">'+(t.cargo?'<span><i class="ti ti-briefcase" style="font-size:10px"></i> '+t.cargo+'</span>':'')+(t.prazo?'<span><i class="ti ti-calendar" style="font-size:10px"></i> '+fd(t.prazo)+'</span>':'')+'</div></div>'
+      +'<button class="ibb" style="font-size:12px;flex-shrink:0" onclick="deleteTask('+jobId+','+t.id+')"><i class="ti ti-trash"></i></button>'
+      +'</div>';
+  }).join('');
+  const prazoInt=j.prazoInterno||j.prazo||'';
+  const prazoFin=j.prazoFinal||j.prazo||'';
+  const abertos=tarefas.filter(t=>!t.done).length;
+  return '<div id="tab-tarefas" class="tab-content">'
+    +'<div class="prazo-dual">'
+    +'<div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazo('+jobId+','prazoInterno',this.value)"></div>'
+    +'<div class="prazo-item"><label>Prazo final de entrega</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazo('+jobId+','prazoFinal',this.value)"></div>'
+    +'</div>'
+    +'<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Tarefas <span style="font-weight:400;text-transform:none">('+abertos+' abertas de '+tarefas.length+')</span></div>'
+    +'<div id="tarefas-list-'+jobId+'">'+(tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>')+'</div>'
+    +'<div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px">'
+    +'<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px">Nova tarefa</div>'
+    +'<input class="fi fi-sm" id="nt-titulo-'+jobId+'" placeholder="Descrição da tarefa" style="width:100%;margin-bottom:6px">'
+    +'<div class="frow" style="margin-bottom:6px"><select class="fi fi-sm" id="nt-cargo-'+jobId+'"><option value="">— Área —</option>'+cargoOpts+'</select>'
+    +'<input class="fi fi-sm" type="date" id="nt-prazo-'+jobId+'"></div>'
+    +'<button class="btn btn-sm btng" onclick="addTarefa('+jobId+')"><i class="ti ti-plus"></i> Adicionar</button>'
+    +'</div></div>';
 }
-
 function addTarefa(jobId){
   const j=jobs.find(x=>x.id===jobId);if(!j)return;
   const t=document.getElementById('nt-titulo-'+jobId)?.value.trim();
@@ -1595,12 +1617,12 @@ function addTarefa(jobId){
   j.tarefas.push({
     id:++nid,
     titulo:t,
-    resp:document.getElementById('nt-resp-'+jobId)?.value||'',
+    cargo:document.getElementById('nt-cargo-'+jobId)?.value||'',
     prazo:document.getElementById('nt-prazo-'+jobId)?.value||'',
     done:false
   });
   document.getElementById('nt-titulo-'+jobId).value='';
-  document.getElementById('nt-resp-'+jobId).value='';
+  document.getElementById('nt-cargo-'+jobId).value='';
   document.getElementById('nt-prazo-'+jobId).value='';
   // Refresh tasks list
   const equipeOpts=colabs.map(c=>`<option>${c.nome}</option>`).join('');
@@ -1629,6 +1651,133 @@ function deleteTask(jobId,taskId){
   const tabEl=document.getElementById('tab-tarefas');
   if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=newHTML;const newTab=tmp.querySelector('#tab-tarefas');if(newTab){tabEl.innerHTML=newTab.innerHTML;}}
   rDash();renderJobs();
+}
+
+function rPanelTarefas(jobId){
+  const tabEl=document.getElementById('tab-tarefas');
+  if(!tabEl)return;
+  const tmp=document.createElement('div');
+  tmp.innerHTML=buildTarefasHTML(jobId);
+  const newTab=tmp.querySelector('#tab-tarefas');
+  if(newTab)tabEl.innerHTML=newTab.innerHTML;
+}
+
+function buildBriefingHTML(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return '';
+  return '<div id="tab-briefing" class="tab-content on">'
+    +'<div class="sec-label" style="margin-bottom:8px">Briefing</div>'
+    +'<textarea class="briefing-area" id="briefing-'+jobId+'" placeholder="Descreva o que precisa ser feito neste job..." onblur="saveBriefing('+jobId+')">'+(j.briefing||'')+'</textarea>'
+    +'<div style="font-size:10px;color:var(--muted);margin-top:4px">Salvo ao sair do campo</div>'
+    +'</div>';
+}
+
+function saveBriefing(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  const el=document.getElementById('briefing-'+jobId);
+  if(el)j.briefing=el.value;
+}
+
+function buildComentariosHTML(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return '';
+  const comentarios=j.comentarios||[];
+  const envolvidos=j.envolvidos||[];
+  let comsHTML=comentarios.map(c=>{
+    const ci=colabs.findIndex(x=>x.nome===c.autor);
+    const txt=c.texto.replace(/@(\S+)/g,'<span class="comment-mention">@$1</span>');
+    return '<div class="comment-entry">'
+      +'<div class="comment-head"><div class="comment-av2" style="'+avS(ci>=0?ci:0)+'">'+ini(c.autor)+'</div>'
+      +'<span class="comment-autor">'+c.autor+'</span><span class="comment-ts">'+c.ts+'</span></div>'
+      +'<div class="comment-text">'+txt+'</div></div>';
+  }).join('');
+  if(!comsHTML)comsHTML='<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhum comentário ainda.</div>';
+  let envHTML=envolvidos.map(e=>{
+    const idx=colabs.findIndex(x=>x.nome===e);
+    return '<span class="envolvido-chip"><span style="'+avS(idx>=0?idx:0)+';width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700">'+ini(e)+'</span>'+e+'</span>';
+  }).join('');
+  return '<div id="tab-comentarios" class="tab-content">'
+    +'<div style="margin-bottom:12px"><div class="sec-label" style="margin-bottom:6px">Envolvidos</div>'
+    +'<div id="envolvidos-'+jobId+'" style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:6px">'+envHTML+'</div>'
+    +'<button class="btn btn-sm btn-ghost" onclick="addEnvolvido('+jobId+')"><i class="ti ti-user-plus"></i> Adicionar pessoa</button></div>'
+    +'<div class="sec-label" style="margin-bottom:8px">Comentários</div>'
+    +'<div id="comentarios-list-'+jobId+'" style="max-height:220px;overflow-y:auto;margin-bottom:10px">'+comsHTML+'</div>'
+    +'<div style="position:relative">'
+    +'<textarea class="comment-input" id="ci-'+jobId+'" placeholder="Escreva um comentário... use @ para mencionar" oninput="handleMention(event,'+jobId+')" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComentario('+jobId+')}" rows="2"></textarea>'
+    +'<div class="mention-dropdown" id="md-'+jobId+'"></div>'
+    +'<div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn btn-sm btng" onclick="sendComentario('+jobId+')"><i class="ti ti-send"></i> Enviar</button></div>'
+    +'</div></div>';
+}
+
+function handleMention(event,jobId){
+  const el=document.getElementById('ci-'+jobId);
+  const dd=document.getElementById('md-'+jobId);
+  if(!el||!dd)return;
+  const before=el.value.slice(0,el.selectionStart);
+  const m=before.match(/@(\w*)$/);
+  if(m){
+    const q=m[1].toLowerCase();
+    const hits=colabs.filter(c=>c.nome.toLowerCase().includes(q)||c.cargo.toLowerCase().includes(q));
+    if(hits.length){
+      dd.style.display='block';
+      dd.innerHTML=hits.map((c,i)=>'<div class="mention-item" onclick="insertMention('+jobId+',''+c.nome+'')">'
+        +'<div class="comment-av2" style="'+avS(i)+'">'+ini(c.nome)+'</div>'
+        +'<div><div style="font-size:12px;font-weight:500">'+c.nome+'</div><div style="font-size:10px;color:var(--muted)">'+c.cargo+'</div></div>'
+        +'</div>').join('');
+      return;
+    }
+  }
+  dd.style.display='none';
+}
+
+function insertMention(jobId,nome){
+  const el=document.getElementById('ci-'+jobId);
+  const dd=document.getElementById('md-'+jobId);
+  if(!el)return;
+  const before=el.value.slice(0,el.selectionStart);
+  const after=el.value.slice(el.selectionStart);
+  el.value=before.replace(/@\w*$/,'@'+nome.replace(/\s+/g,'')+' ')+after;
+  el.focus();
+  if(dd)dd.style.display='none';
+}
+
+function sendComentario(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  const el=document.getElementById('ci-'+jobId);
+  if(!el||!el.value.trim())return;
+  const texto=el.value.trim();
+  const mencoes=[];
+  const re=/@(\S+)/g;let m2;
+  while((m2=re.exec(texto))!==null){
+    const found=colabs.find(c=>c.nome.replace(/\s+/g,'').toLowerCase()===m2[1].toLowerCase());
+    if(found&&!mencoes.includes(found.nome))mencoes.push(found.nome);
+  }
+  if(!j.comentarios)j.comentarios=[];
+  j.comentarios.push({id:++nid,autor:PERFIS[currentUser].nome,texto,ts:now(),mencoes});
+  if(!j.envolvidos)j.envolvidos=[];
+  [...mencoes,PERFIS[currentUser].nome].forEach(n=>{if(!j.envolvidos.includes(n))j.envolvidos.push(n);});
+  el.value='';
+  const tabEl=document.getElementById('tab-comentarios');
+  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=buildComentariosHTML(jobId);const nt=tmp.querySelector('#tab-comentarios');if(nt)tabEl.innerHTML=nt.innerHTML;const list=document.getElementById('comentarios-list-'+jobId);if(list)list.scrollTop=list.scrollHeight;}
+  if(mencoes.length)toast('Notificado:\n'+mencoes.join(', '));
+}
+
+function addEnvolvido(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  if(!j.envolvidos)j.envolvidos=[];
+  const opts=colabs.filter(c=>!j.envolvidos.includes(c.nome)).map(c=>'<option value="'+c.nome+'">'+c.nome+' — '+c.cargo+'</option>').join('');
+  if(!opts){toast('Todos já estão no job.');return;}
+  modal('<div class="mo"><div class="moh"><div class="mot">Adicionar ao job</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div class="fg"><label class="fl">Colaborador</label><select class="fi" id="ae-nome"><option value="">Selecione...</option>'+opts+'</select></div>'
+    +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveEnvolvido('+jobId+')">Adicionar</button></div></div>');
+}
+
+function saveEnvolvido(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  const nome=document.getElementById('ae-nome')?.value;if(!nome)return;
+  if(!j.envolvidos)j.envolvidos=[];
+  if(!j.envolvidos.includes(nome))j.envolvidos.push(nome);
+  closeM();
+  const tabEl=document.getElementById('tab-comentarios');
+  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=buildComentariosHTML(jobId);const nt=tmp.querySelector('#tab-comentarios');if(nt)tabEl.innerHTML=nt.innerHTML;}
 }
 
 function setJobPrazo(jobId,field,val){
@@ -1755,10 +1904,11 @@ async function rDriveFiles(jobId) {
 function panelTab(el, tab) {
   document.querySelectorAll('.panel .tab').forEach(t=>t.classList.remove('on'));
   el.classList.add('on');
-  document.querySelectorAll('.panel .tab-content').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel .tab-content').forEach(t=>{t.classList.remove('on');t.style.display='none';});
   const tc = document.getElementById('tab-'+tab);
-  if(tc) tc.classList.add('on');
+  if(tc){tc.classList.add('on');tc.style.display='block';}
   if(tab==='anexos' && activeJob) rDriveFiles(activeJob);
+  if(tab==='comentarios' && activeJob){const list=document.getElementById('comentarios-list-'+activeJob);if(list)list.scrollTop=list.scrollHeight;}
 }
 
 // Auto-connect if token exists in session

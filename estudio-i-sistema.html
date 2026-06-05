@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
 /* ===== RESET & BASE ===== */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -956,6 +956,7 @@ function toast(msg){
 
 // =================== GOOGLE DRIVE ===================
 const GDRIVE_CLIENT_ID = '674247923232-q8fc429bq3aen8jg67g2s40s651p60u3.apps.googleusercontent.com';
+const GITHUB_PAGES_URL = 'https://estudioicomsistema.github.io/estudioisistema/estudio-i-sistema.html';
 const GDRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
 let driveToken = null;
 let jobAnexos = {};  // jobId -> [{name,id,url,size,mimeType}]
@@ -965,19 +966,56 @@ function driveConnect() {
     showDriveStatus(true);
     return;
   }
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: GDRIVE_CLIENT_ID,
-    scope: GDRIVE_SCOPES,
-    callback: (resp) => {
-      if(resp.access_token) {
-        driveToken = resp.access_token;
-        showDriveStatus(true);
-        toast('Google Drive conectado!\nArquivos salvos em: Estudio i / Jobs');
-        ensureDriveFolder();
-      }
+  if(window.location.protocol === 'file:') {
+    modal(`<div class="mo"><div class="moh"><div class="mot">Abrir versão online</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+      <div style="text-align:center;padding:10px 0 20px">
+        <i class="ti ti-brand-google-drive" style="font-size:40px;color:var(--g);margin-bottom:12px;display:block"></i>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px">Use a versão online para conectar o Drive</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">O Drive só funciona na versão hospedada.<br>Clique abaixo para abrir o sistema online.</div>
+        <div style="background:var(--gl);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--gd);font-weight:600;word-break:break-all">https://estudioicomsistema.github.io/estudioisistema/estudio-i-sistema.html</div>
+      </div>
+      <div class="mof"><button class="btn btng" onclick="closeM();window.open('https://estudioicomsistema.github.io/estudioisistema/estudio-i-sistema.html','_blank')"><i class="ti ti-external-link"></i> Abrir sistema online</button></div>
+    </div>`);
+    return;
+  }
+  // Try to use Google Identity Services
+  function tryConnect() {
+    if(typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+      console.log('GIS not loaded yet, retrying...');
+      setTimeout(tryConnect, 500);
+      return;
     }
-  });
-  client.requestAccessToken();
+    try {
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: '674247923232-q8fc429bq3aen8jg67g2s40s651p60u3.apps.googleusercontent.com',
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        callback: (resp) => {
+          if(resp && resp.access_token) {
+            driveToken = resp.access_token;
+            showDriveStatus(true);
+            toast('Google Drive conectado!\nArquivos salvos em: Estudio i Sistema / Jobs');
+            ensureDriveFolder();
+          } else {
+            console.error('OAuth error:', resp);
+            toast('Erro ao conectar. Verifique o console.');
+          }
+        },
+        error_callback: (err) => {
+          console.error('GIS error:', err);
+          if(err.type === 'popup_blocked_by_browser') {
+            toast('Popup bloqueado!\nPermita popups para este site nas configurações do Chrome.');
+          } else {
+            toast('Erro: ' + (err.message || err.type || 'desconhecido'));
+          }
+        }
+      });
+      client.requestAccessToken({prompt: 'consent'});
+    } catch(e) {
+      console.error('Drive connect error:', e);
+      toast('Erro ao iniciar conexão: ' + e.message);
+    }
+  }
+  tryConnect();
 }
 
 function showDriveStatus(connected) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estúdio i — Sistema de Gestão</title>
+<title>Estúdio i — Sistema v2.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
@@ -844,13 +844,13 @@ function rPanel(j){
     +'</select></div>';
   const tarefasCount=(j.tarefas||[]).filter(t=>!t.done).length;
   const comsCount=(j.comentarios||[]).length;
-  const tabsHTML='<div class="tabs" style="margin-bottom:14px">'
-    +'<div class="tab on" onclick="panelTab(this,'briefing')">Briefing</div>'
-    +'<div class="tab" onclick="panelTab(this,'tarefas')">Tarefas'+(tarefasCount?'<span style="font-size:10px;background:var(--aml);color:var(--am);border-radius:10px;padding:1px 5px;margin-left:3px">'+tarefasCount+'</span>':'')+'</div>'
-    +'<div class="tab" onclick="panelTab(this,'comentarios')">Comentários'+(comsCount?'<span style="font-size:10px;background:var(--bl);color:var(--b);border-radius:10px;padding:1px 5px;margin-left:3px">'+comsCount+'</span>':'')+'</div>'
-    +'<div class="tab" onclick="panelTab(this,'fluxo')">Fluxo</div>'
-    +'<div class="tab" onclick="panelTab(this,'anexos')">Anexos</div>'
-    +'</div>';
+  const tabsHTML=`<div class="tabs" style="margin-bottom:14px">
+    <div class="tab on" onclick="panelTab(this,'briefing')">Briefing</div>
+    <div class="tab" onclick="panelTab(this,'tarefas')">Tarefas${tarefasCount?"<span style=\"font-size:10px;background:var(--aml);color:var(--am);border-radius:10px;padding:1px 5px;margin-left:3px\">"+tarefasCount+"</span>":""}</div>
+    <div class="tab" onclick="panelTab(this,'comentarios')">Comentários${comsCount?"<span style=\"font-size:10px;background:var(--bl);color:var(--b);border-radius:10px;padding:1px 5px;margin-left:3px\">"+comsCount+"</span>":""}</div>
+    <div class="tab" onclick="panelTab(this,'fluxo')">Fluxo</div>
+    <div class="tab" onclick="panelTab(this,'anexos')">Anexos</div>
+  </div>`;
   const body=document.getElementById('p-body');
   body.innerHTML=tabsHTML
     +buildBriefingHTML(j.id)

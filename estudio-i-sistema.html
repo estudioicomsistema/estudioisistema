@@ -911,8 +911,8 @@ function rProjetos(){
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <span class="badge bblue">${pjobs.length} jobs</span>
-          ${ativos?`<span class="badge bpend">${ativos} ativos</span>`:''}
-          ${atrasados?`<span class="badge blate">${atrasados} atrasados</span>`:''}
+          ${ativos?'<span class="badge bpend">'+ativos+' ativos</span>':''}
+          ${atrasados?'<span class="badge blate">'+atrasados+' atrasados</span>':''}
         </div>
         <button class="btn btn-sm" onclick="event.stopPropagation();openNewJobNoProjeto(${p.id})"><i class="ti ti-plus"></i> Job</button>
         <button class="ibb" onclick="event.stopPropagation();editProjeto(${p.id})"><i class="ti ti-edit"></i></button>
@@ -1044,9 +1044,7 @@ function saveJobDoProjeto(projetoId, nextNum){
   if(f&&(rc==='Ana Luiza'||rc==='Bruno')){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
   jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:p.num,proj:p.nome,etapa:'Operações',prazo:prazoFin,prazoInterno:prazoInt,prazoFinal:prazoFin,status:'Pendente',rc,tarefas:[],hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
   closeM();rProjetos();rDash();renderJobs();
-  toast('Job '+nextNum+' criado!
-Para: Ana Ingrid
-Aguardando redação.');
+  toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
 }
 
 // =================== CLIENTES ===================

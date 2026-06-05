@@ -54,6 +54,7 @@ a{color:var(--g);text-decoration:none}
 .btnr{background:var(--r);color:#fff;border-color:var(--r)}.btnr:hover{opacity:.88}
 .btno{background:var(--o);color:#fff;border-color:var(--o)}.btno:hover{opacity:.88}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}.btn-ghost:hover{background:var(--hover);color:var(--text)}
+.btn-danger{color:var(--r);border-color:#F7C1C1}.btn-danger:hover{background:var(--rl)}
 .btn-sm{padding:4px 9px;font-size:11px;border-radius:6px}
 .ibb{background:none;border:none;cursor:pointer;padding:5px;border-radius:6px;color:var(--muted);font-size:15px;display:inline-flex;align-items:center}
 .ibb:hover{background:var(--hover);color:var(--text)}
@@ -543,23 +544,29 @@ let currentUser='irene';
 
 // JOBS
 let jobs=[
-  {id:1,num:'347.4',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN',proj:'347 CERN — Jun/26',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
+  {id:1,num:'2.6.1',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}]},
-  {id:2,num:'347.5',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN',proj:'347 CERN — Jun/26',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
+  {id:2,num:'2.6.2',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:37',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 11:00',n:'Em andamento'}]},
-  {id:3,num:'401.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',proj:'401 ABC — Jun/26',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
+  {id:3,num:'1.6.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',projNum:'1.6',proj:'ABC Prosperity — Jun/26',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}]},
-  {id:4,num:'404.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',proj:'404 Gontijo — Jun/26',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
+  {id:4,num:'3.6.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',projNum:'3.6',proj:'Gontijo Mendes — Jun/26',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Job criado'}]},
-  {id:5,num:'402.2',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN',proj:'402 CERN — Jun/26',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
+  {id:5,num:'2.6.3',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'03/06 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'03/06 às 12:00',n:'Texto ok'},{e:'Criação',r:'Bruno',ts:'03/06 às 15:00',n:'Arte ok'},{e:'Revisão',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Em revisão'}]},
 ];
 
 // CLIENTES
 let clientes=[
-  {id:1,nome:'ABC Prosperity',razao:'ABC Prosperity',email:'financeiro@somosabc.com.br',cnpj:'37.611.745/0001-05',tel:'(31) 3010-5000',end:'Rua Antônio de Albuquerque, 271, 8º andar',cidade:'Belo Horizonte / MG',contatos:[{nome:'Ronaldo Behrens',email:'ronaldo.behrens@somosabc.com.br'}],anots:'',star:true},
-  {id:2,nome:'CERN Consultoria',razao:'CERN Consultoria Empreendimentos',email:'cern@cern.com.br',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:true},
-  {id:3,nome:'Gontijo Mendes',razao:'Gontijo Mendes Advogados',email:'',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:false},
+  {id:1,num:1,nome:'ABC Prosperity',razao:'ABC Prosperity',email:'financeiro@somosabc.com.br',cnpj:'37.611.745/0001-05',tel:'(31) 3010-5000',end:'Rua Antônio de Albuquerque, 271, 8º andar',cidade:'Belo Horizonte / MG',contatos:[{nome:'Ronaldo Behrens',email:'ronaldo.behrens@somosabc.com.br'}],anots:'',star:true},
+  {id:2,num:2,nome:'CERN Consultoria',razao:'CERN Consultoria Empreendimentos',email:'cern@cern.com.br',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:true},
+  {id:3,num:3,nome:'Gontijo Mendes',razao:'Gontijo Mendes Advogados',email:'',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:false},
+];
+// Projetos: {id, num (ex:'1.6'), cliId, cliNum, nome, mes, ano}
+let projetos=[
+  {id:1,num:'1.6',cliId:1,cliNum:1,nome:'ABC Prosperity — Jun/26',mes:6,ano:26},
+  {id:2,num:'2.6',cliId:2,cliNum:2,nome:'CERN Consultoria — Jun/26',mes:6,ano:26},
+  {id:3,num:'3.6',cliId:3,cliNum:3,nome:'Gontijo Mendes — Jun/26',mes:6,ano:26},
 ];
 
 // COLABORADORES
@@ -836,10 +843,14 @@ function calGoToday(){calYear=HOJE_DT.getFullYear();calMonth=HOJE_DT.getMonth();
 function rClientes(){
   document.getElementById('cli-list').innerHTML=clientes.map(c=>{
     const njobs=jobs.filter(j=>j.cli===c.nome).length;
-    return `<div class="cli-card" onclick="openClienteDetail(${c.id})">
+    return `<div class="cli-card">
       <div class="cli-av" style="${avS(c.id%8)}">${ini(c.nome)}</div>
-      <div class="cli-info"><div class="cli-name">${c.nome}</div><div class="cli-sub">${c.razao}</div></div>
-      <div class="cli-stats"><span class="badge bblue">${njobs} jobs</span><span class="badge ${c.star?'bpend':'bgray'}">${c.star?'★ Destaque':'—'}</span></div>
+      <div class="cli-info" style="cursor:pointer" onclick="openClienteDetail(${c.id})"><div class="cli-name"><span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);margin-right:6px">#${c.num||c.id}</span>${c.nome}</div><div class="cli-sub">${c.razao}</div></div>
+      <div class="cli-stats">
+        <span class="badge bblue">${njobs} jobs</span>
+        <span class="badge ${c.star?'bpend':'bgray'}">${c.star?'★ Destaque':'—'}</span>
+        <button class="btn btn-sm" onclick="editCliente(${c.id})" title="Editar cliente"><i class="ti ti-edit"></i></button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -849,8 +860,14 @@ function rColabs(){
   document.getElementById('colab-grid').innerHTML=colabs.map(c=>{
     const mj=jobs.filter(j=>j.hist.some(h=>h.r===c.nome)&&j.etapa!=='Concluído').length;
     const pct=Math.min(100,mj*30);
-    return `<div class="colab-card" onclick="openColabDetail(${c.id})">
-      <div class="colab-av" style="${avS(c.cor)}">${c.ini}</div>
+    return `<div class="colab-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div class="colab-av" style="${avS(c.cor)};margin:0">${c.ini}</div>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-sm" onclick="openColabDetail(${c.id})" title="Ver detalhes"><i class="ti ti-eye"></i></button>
+          <button class="btn btn-sm" onclick="editColab(${c.id})" title="Editar"><i class="ti ti-edit"></i></button>
+        </div>
+      </div>
       <div class="colab-name">${c.nome}</div>
       <div class="colab-cargo">${c.cargo}</div>
       <div class="colab-horas">Jobs ativos: <strong>${mj}</strong></div>
@@ -858,6 +875,86 @@ function rColabs(){
       <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
+}
+
+// =================== COLABORADORES CRUD ===================
+function openNewColab(){
+  modal(`<div class="mo"><div class="moh"><div class="mot">Novo colaborador</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="frow"><div class="fg"><label class="fl">Nome</label><input class="fi" id="nco-n"></div><div class="fg"><label class="fl">Cargo / função</label><select class="fi" id="nco-c"><option>Operações</option><option>Redação</option><option>Criação</option><option>Social Media</option><option>Tráfego</option></select></div></div>
+    <div class="frow"><div class="fg"><label class="fl">CPF</label><input class="fi" id="nco-cpf"></div><div class="fg"><label class="fl">Telefone</label><input class="fi" id="nco-tel"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Salário base (R$)</label><input class="fi" type="number" id="nco-sal" placeholder="0"></div><div class="fg"><label class="fl">Valor/hora (R$)</label><input class="fi" type="number" id="nco-vh" placeholder="0"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Aniversário (DD/MM)</label><input class="fi" id="nco-aniv" placeholder="09/01"></div><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="nco-cid"></div></div>
+    <div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveNewColab()">Salvar</button></div>
+  </div>`);
+}
+function saveNewColab(){
+  const n=document.getElementById('nco-n').value.trim();if(!n)return;
+  colabs.push({id:++nid,nome:n,cargo:document.getElementById('nco-c').value,cpf:document.getElementById('nco-cpf').value,tel:document.getElementById('nco-tel').value,end:'',cidade:document.getElementById('nco-cid').value,salario:parseFloat(document.getElementById('nco-sal').value)||0,vh:parseFloat(document.getElementById('nco-vh').value)||0,aniv:document.getElementById('nco-aniv').value,ferias:'',ini:ini(n),cor:colabs.length%8});
+  closeM();rColabs();
+}
+function editColab(id){
+  const c=colabs.find(x=>x.id===id);if(!c)return;
+  modal(`<div class="mo mo-lg"><div class="moh"><div class="mot"><i class="ti ti-edit"></i> Editar — ${c.nome}</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="frow"><div class="fg"><label class="fl">Nome</label><input class="fi" id="eco-n" value="${c.nome}"></div><div class="fg"><label class="fl">Cargo</label><select class="fi" id="eco-c"><option${c.cargo==='Operações'?' selected':''}>Operações</option><option${c.cargo==='Redação'?' selected':''}>Redação</option><option${c.cargo==='Criação'?' selected':''}>Criação</option><option${c.cargo==='Social Media'?' selected':''}>Social Media</option><option${c.cargo==='Tráfego'?' selected':''}>Tráfego</option></select></div></div>
+    <div class="frow"><div class="fg"><label class="fl">CPF</label><input class="fi" id="eco-cpf" value="${c.cpf||''}"></div><div class="fg"><label class="fl">Telefone</label><input class="fi" id="eco-tel" value="${c.tel||''}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Endereço</label><input class="fi" id="eco-end" value="${c.end||''}"></div><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="eco-cid" value="${c.cidade||''}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Salário base (R$)</label><input class="fi" type="number" id="eco-sal" value="${c.salario||0}"></div><div class="fg"><label class="fl">Valor/hora (R$)</label><input class="fi" type="number" id="eco-vh" value="${c.vh||0}"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Aniversário (DD/MM)</label><input class="fi" id="eco-aniv" value="${c.aniv||''}"></div><div class="fg"><label class="fl">Vencimento férias</label><input class="fi" id="eco-ferias" value="${c.ferias||''}"></div></div>
+    <div class="mof">
+      <button class="btn btn-danger" onclick="deleteColab(${id})"><i class="ti ti-trash"></i></button>
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn btng" onclick="saveEditColab(${id})"><i class="ti ti-check"></i> Salvar</button>
+    </div>
+  </div>`);
+}
+function saveEditColab(id){
+  const c=colabs.find(x=>x.id===id);if(!c)return;
+  c.nome=document.getElementById('eco-n').value.trim()||c.nome;
+  c.cargo=document.getElementById('eco-c').value;
+  c.cpf=document.getElementById('eco-cpf').value;
+  c.tel=document.getElementById('eco-tel').value;
+  c.end=document.getElementById('eco-end').value;
+  c.cidade=document.getElementById('eco-cid').value;
+  c.salario=parseFloat(document.getElementById('eco-sal').value)||0;
+  c.vh=parseFloat(document.getElementById('eco-vh').value)||0;
+  c.aniv=document.getElementById('eco-aniv').value;
+  c.ferias=document.getElementById('eco-ferias').value;
+  c.ini=ini(c.nome);
+  closeM();rColabs();toast(c.nome+' atualizado!');
+}
+function deleteColab(id){
+  if(!confirm('Excluir este colaborador?'))return;
+  colabs=colabs.filter(x=>x.id!==id);
+  closeM();rColabs();
+}
+function openColabDetail(id){
+  const c=colabs.find(x=>x.id===id);if(!c)return;
+  const mj=jobs.filter(j=>j.hist&&j.hist.some(h=>h.r===c.nome)&&j.etapa!=='Concluído').length;
+  const ths=tsEntries.filter(t=>t.prof===c.nome).reduce((s,t)=>s+t.h,0);
+  modal(`<div class="mo mo-lg"><div class="moh"><div><div class="mot">${c.nome}</div><div style="font-size:12px;color:var(--muted)">${c.cargo}</div></div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+      <div><div class="sec-label">Dados pessoais</div>
+        ${c.cpf?'<div style="font-size:12px;margin-bottom:3px">CPF: '+c.cpf+'</div>':''}
+        ${c.tel?'<div style="font-size:12px;margin-bottom:3px">Tel: '+c.tel+'</div>':''}
+        ${c.end?'<div style="font-size:12px;color:var(--muted)">'+c.end+'</div>':''}
+        ${c.cidade?'<div style="font-size:12px;color:var(--muted)">'+c.cidade+'</div>':''}
+        ${c.aniv?'<div style="font-size:12px;margin-top:4px">🎂 '+c.aniv+'</div>':''}
+        ${c.ferias?'<div style="font-size:12px;margin-top:4px">🏖️ Férias: '+c.ferias+'</div>':''}
+      </div>
+      <div><div class="sec-label">Financeiro</div>
+        ${c.salario?'<div style="font-size:12px;margin-bottom:3px">Salário: R$ '+fmtR(c.salario)+'</div>':'<div style="font-size:12px;color:var(--muted)">Não informado</div>'}
+        ${c.vh?'<div style="font-size:12px">Hora: R$ '+fmtR(c.vh)+'</div>':''}
+      </div>
+      <div><div class="sec-label">Produção</div>
+        <div style="font-size:22px;font-weight:600">${mj}</div><div style="font-size:11px;color:var(--muted)">jobs ativos</div>
+        <div style="font-size:22px;font-weight:600;margin-top:8px">${ths}h</div><div style="font-size:11px;color:var(--muted)">horas registradas</div>
+      </div>
+    </div>
+    <div class="mof">
+      <button class="btn" onclick="closeM();editColab(${id})"><i class="ti ti-edit"></i> Editar</button>
+      <button class="btn btng" onclick="closeM()">Fechar</button>
+    </div>
+  </div>`);
 }
 
 // =================== TIMESHEET ===================
@@ -896,7 +993,11 @@ function closeM(){document.getElementById('mc').innerHTML='';}
 
 // --- NEW JOB ---
 function openNewJob(){
-  const po=clientes.map(c=>`<option>${c.nome}</option>`).join('');
+  const mesesNomes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mesAtual=new Date().getMonth()+1;
+  const anoAtual=new Date().getFullYear();
+  const po=clientes.map(c=>`<option value="${c.id}">${c.num} — ${c.nome}</option>`).join('');
+  const mOpts=mesesNomes.map((m,i)=>`<option value="${i+1}"${i+1===mesAtual?' selected':''}>${m}</option>`).join('');
   modal(`<div class="mo"><div class="moh"><div class="mot">Novo job</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
     <div class="fg"><label class="fl">Título do job</label><input class="fi" id="nj-t" placeholder="Ex: POST 20 — Conteúdo institucional"></div>
     <div class="frow"><div class="fg"><label class="fl">Cliente</label><select class="fi" id="nj-c" onchange="updateProjSug()">${po}</select></div><div class="fg"><label class="fl">Número (ex: 401.5)</label><input class="fi" id="nj-n" oninput="updateProjSug()"></div></div>
@@ -923,7 +1024,7 @@ function duplicarJob(id){
       <div class="fg"><label class="fl">Cliente</label><select class="fi" id="dup-c">${po}</select></div>
       <div class="fg"><label class="fl">Número</label><input class="fi" id="dup-n" placeholder="Ex: ${j.num.split('.')[0]}.${(parseInt(j.num.split('.')[1]||0)+1)}"></div>
     </div>
-    <div class="fg"><label class="fl">Projeto / Pasta no Drive</label><input class="fi" id="dup-proj" value="${j.proj||''}"></div>
+    <div class="fg"><label class="fl">Projeto / Pasta no Drive</label><input type="hidden" id="dup-proj-num" value="${j.projNum||''}""><input class="fi" id="dup-proj" value="${j.proj||''}"></div>
     <div class="frow">
       <div class="fg"><label class="fl">Prazo</label><input class="fi" type="date" id="dup-pr" value="${j.prazo}"></div>
       <div class="fg"><label class="fl">Criação — responsável</label>
@@ -955,7 +1056,7 @@ function saveDupJob(){
   if(f){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
   const novoJob={
     id:++nid,
-    num:document.getElementById('dup-n').value||'novo.'+nid,
+    num:(()=>{const manual=document.getElementById('dup-n').value.trim();if(manual)return manual;const pn=document.getElementById('dup-proj-num')?.value;return pn?getNextJobNum(pn):'novo.'+nid;})(),
     titulo:t,
     cli:document.getElementById('dup-c').value,
     proj:document.getElementById('dup-proj').value,
@@ -971,20 +1072,55 @@ function saveDupJob(){
   renderJobs();
   toast('Job duplicado!\n'+novoJob.num+' — '+novoJob.titulo.slice(0,40));
 }
+// ===== AUTO NUMBERING =====
+function getNextJobNum(projNum){
+  const existing=jobs.filter(j=>j.projNum===projNum);
+  const maxSeq=existing.reduce((max,j)=>{
+    const parts=j.num.split('.');
+    const seq=parseInt(parts[parts.length-1])||0;
+    return Math.max(max,seq);
+  },0);
+  return projNum+'.'+(maxSeq+1);
+}
+function getOrCreateProjeto(cliId, mes, ano){
+  const cli=clientes.find(x=>x.id===cliId);
+  if(!cli)return null;
+  const projNum=cli.num+'.'+mes;
+  let proj=projetos.find(p=>p.cliId===cliId&&p.mes===mes&&p.ano===ano);
+  if(!proj){
+    const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    proj={id:++nid,num:projNum,cliId,cliNum:cli.num,nome:cli.nome+' — '+meses[mes-1]+'/'+String(ano).slice(-2),mes,ano};
+    projetos.push(proj);
+  }
+  return proj;
+}
 function updateProjSug(){
-  const num=(document.getElementById('nj-n')?.value||'').split('.')[0];
-  const cli=(document.getElementById('nj-c')?.value||'').split(' ')[0];
-  const mes=document.getElementById('nj-mes')?.value||'';
-  const ano=document.getElementById('nj-ano')?.value||'';
-  const el=document.getElementById('nj-proj');
-  if(el&&num&&cli&&mes&&ano) el.value=num+' '+cli+' — '+mes+'/'+ano;
+  const cliId=parseInt(document.getElementById('nj-c')?.value);
+  const mes=parseInt(document.getElementById('nj-mes')?.value);
+  const ano=new Date().getFullYear();
+  const preview=document.getElementById('nj-proj-preview');
+  if(!cliId||!mes||!preview)return;
+  const proj=getOrCreateProjeto(cliId,mes,ano);
+  if(!proj)return;
+  const nextNum=getNextJobNum(proj.num);
+  preview.innerHTML='<i class="ti ti-folder" style="font-size:11px"></i> Projeto: <strong>'+proj.nome+'</strong><br><i class="ti ti-hash" style="font-size:11px"></i> Número do job: <strong>'+nextNum+'</strong>';
+  preview.dataset.projNum=proj.num;
+  preview.dataset.nextNum=nextNum;
+  preview.dataset.projNome=proj.nome;
 }
 function saveJob(){
   const t=document.getElementById('nj-t').value.trim();if(!t)return;
+  const preview=document.getElementById('nj-proj-preview');
+  const projNum=preview?.dataset.projNum;
+  const nextNum=preview?.dataset.nextNum;
+  const projNome=preview?.dataset.projNome;
+  const cliId=parseInt(document.getElementById('nj-c')?.value);
+  const cli=clientes.find(x=>x.id===cliId);
+  if(!projNum||!nextNum){toast('Selecione cliente e mês antes de criar.');return;}
   const rc=document.getElementById('nj-rc').value;
   const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
-  jobs.unshift({id:++nid,num:document.getElementById('nj-n').value||'novo.'+nid,titulo:t,cli:document.getElementById('nj-c').value,proj:document.getElementById('nj-proj')?.value||document.getElementById('nj-c').value,etapa:'Operações',prazo:document.getElementById('nj-pr').value,status:'Pendente',rc,hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
-  closeM();rDash();renderJobs();toast(`Job criado!\nPara: Ana Ingrid\nAguardando redação.`);
+  jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:projNum,proj:projNome,etapa:'Operações',prazo:document.getElementById('nj-pr').value,status:'Pendente',rc,hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
+  closeM();rDash();renderJobs();toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
 }
 
 // --- EVENTO CALENDÁRIO ---
@@ -1005,6 +1141,60 @@ function saveEvento(){
 }
 
 // --- NOVO CLIENTE ---
+function editCliente(id){
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  modal(`<div class="mo mo-lg"><div class="moh"><div class="mot"><i class="ti ti-edit"></i> Editar cliente — #${c.num||c.id} ${c.nome}</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Nome / apelido</label><input class="fi" id="ec-n" value="${c.nome}"></div>
+      <div class="fg"><label class="fl">Razão social</label><input class="fi" id="ec-r" value="${c.razao}"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ec-cnpj" value="${c.cnpj||''}"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="ec-e" value="${c.email||''}"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Telefone</label><input class="fi" id="ec-tel" value="${c.tel||''}"></div>
+      <div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ec-cid" value="${c.cidade||''}"></div>
+    </div>
+    <div class="fg"><label class="fl">Endereço</label><input class="fi" id="ec-end" value="${c.end||''}"></div>
+    <div class="fg"><label class="fl">Anotações</label><textarea class="fi" id="ec-anots" rows="3">${c.anots||''}</textarea></div>
+    <div class="sec-label" style="margin-top:4px">Contatos</div>
+    <div id="ec-contatos">${c.contatos.map((ct,i)=>`
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center">
+        <input class="fi fi-sm" placeholder="Nome" value="${ct.nome}" oninput="c.contatos[${i}].nome=this.value">
+        <input class="fi fi-sm" placeholder="Email" value="${ct.email||''}" oninput="c.contatos[${i}].email=this.value">
+        <button class="ibb" onclick="c.contatos.splice(${i},1);editCliente(${id})"><i class="ti ti-trash"></i></button>
+      </div>`).join('')}</div>
+    <button class="btn btn-sm btn-ghost" onclick="addContatoEdit(${id})"><i class="ti ti-plus"></i> Adicionar contato</button>
+    <div class="mof">
+      <button class="btn btn-danger" onclick="deleteCliente(${id})"><i class="ti ti-trash"></i> Excluir</button>
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn btng" onclick="saveEditCliente(${id})"><i class="ti ti-check"></i> Salvar</button>
+    </div>
+  </div>`);
+}
+function addContatoEdit(id){
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  c.contatos.push({nome:'',email:''});
+  editCliente(id);
+}
+function saveEditCliente(id){
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  c.nome=document.getElementById('ec-n').value.trim()||c.nome;
+  c.razao=document.getElementById('ec-r').value||c.nome;
+  c.cnpj=document.getElementById('ec-cnpj').value;
+  c.email=document.getElementById('ec-e').value;
+  c.tel=document.getElementById('ec-tel').value;
+  c.cidade=document.getElementById('ec-cid').value;
+  c.end=document.getElementById('ec-end').value;
+  c.anots=document.getElementById('ec-anots').value;
+  closeM();rClientes();toast('Cliente '+c.nome+' atualizado!');
+}
+function deleteCliente(id){
+  if(!confirm('Excluir este cliente? Os jobs vinculados não serão excluídos.'))return;
+  clientes=clientes.filter(x=>x.id!==id);
+  closeM();rClientes();
+}
 function openNewCliente(){
   modal(`<div class="mo"><div class="moh"><div class="mot">Novo cliente</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
     <div class="frow"><div class="fg"><label class="fl">Nome / apelido</label><input class="fi" id="nc-n"></div><div class="fg"><label class="fl">Razão social</label><input class="fi" id="nc-r"></div></div>
@@ -1016,7 +1206,8 @@ function openNewCliente(){
 }
 function saveCliente(){
   const n=document.getElementById('nc-n').value.trim();if(!n)return;
-  clientes.push({id:++nid,nome:n,razao:document.getElementById('nc-r').value||n,email:document.getElementById('nc-e').value,cnpj:document.getElementById('nc-cnpj').value,tel:document.getElementById('nc-tel').value,end:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cid').value,contatos:[],anots:'',star:false});
+  const nextNum=clientes.length>0?Math.max(...clientes.map(c=>c.num||0))+1:1;
+  clientes.push({id:++nid,num:nextNum,nome:n,razao:document.getElementById('nc-r').value||n,email:document.getElementById('nc-e').value,cnpj:document.getElementById('nc-cnpj').value,tel:document.getElementById('nc-tel').value,end:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cid').value,contatos:[],anots:'',star:false});
   closeM();rClientes();
 }
 

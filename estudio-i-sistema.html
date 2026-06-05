@@ -406,7 +406,8 @@ textarea.fi{resize:vertical;min-height:70px}
       </div>
     </div>
     <div class="shead-actions">
-      <input class="fi fi-sm" style="width:180px" placeholder="Buscar..." oninput="renderJobs()" id="s-j">
+      <input class="fi fi-sm" style="width:150px" placeholder="Buscar..." oninput="renderJobs()" id="s-j">
+      <input class="fi fi-sm" style="width:130px" placeholder="Projeto..." oninput="renderJobs()" id="f-p">
       <select class="fi fi-sm" style="width:150px" onchange="renderJobs()" id="f-e">
         <option value="">Todas as etapas</option>
         <option>Operações</option><option>Redação</option><option>Criação</option><option>Revisão</option><option>Agendamento</option><option>Concluído</option>
@@ -542,15 +543,15 @@ let currentUser='irene';
 
 // JOBS
 let jobs=[
-  {id:1,num:'347.4',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
+  {id:1,num:'347.4',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN',proj:'347 CERN — Jun/26',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}]},
-  {id:2,num:'347.5',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
+  {id:2,num:'347.5',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN',proj:'347 CERN — Jun/26',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:37',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 11:00',n:'Em andamento'}]},
-  {id:3,num:'401.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
+  {id:3,num:'401.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',proj:'401 ABC — Jun/26',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}]},
-  {id:4,num:'404.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
+  {id:4,num:'404.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',proj:'404 Gontijo — Jun/26',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Job criado'}]},
-  {id:5,num:'402.2',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
+  {id:5,num:'402.2',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN',proj:'402 CERN — Jun/26',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'03/06 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'03/06 às 12:00',n:'Texto ok'},{e:'Criação',r:'Bruno',ts:'03/06 às 15:00',n:'Arte ok'},{e:'Revisão',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Em revisão'}]},
 ];
 
@@ -692,15 +693,17 @@ function jcard(j,compact=false){
       <div class="jtxt"><div class="jtitle">${j.titulo}</div><div class="jcli">${j.cli}</div></div>
       <span class="epill" style="background:${c[0]};color:${c[1]}">${j.etapa}</span>
       <span class="badge ${j.status==='Em atraso'?'blate':j.status==='No prazo'?'bok':'bpend'}">${j.status}</span>
+      <button class="ibb" style="font-size:13px;flex-shrink:0" title="Duplicar job" onclick="event.stopPropagation();duplicarJob(${j.id})"><i class="ti ti-copy"></i></button>
     </div>
-    ${!compact?`<div class="jmeta"><i class="ti ti-calendar" style="font-size:11px"></i> ${fd(j.prazo)} <span>·</span> <i class="ti ti-user" style="font-size:11px"></i> ${last?.r||'—'}</div>`:''}
+    ${!compact?`<div class="jmeta"><i class="ti ti-folder" style="font-size:11px"></i> ${j.proj||j.cli} <span>·</span> <i class="ti ti-calendar" style="font-size:11px"></i> ${fd(j.prazo)} <span>·</span> <i class="ti ti-user" style="font-size:11px"></i> ${last?.r||'—'}</div>`:''}
   </div>`;
 }
 function renderJobs(){
   const p=PERFIS[currentUser];
   const q=(document.getElementById('s-j')?.value||'').toLowerCase();
+  const fp=(document.getElementById('f-p')?.value||'').toLowerCase();
   const fe=document.getElementById('f-e')?.value||'';
-  let list=jobs.filter(j=>(!q||(j.titulo+j.num).toLowerCase().includes(q))&&(!fe||j.etapa===fe));
+  let list=jobs.filter(j=>(!q||(j.titulo+j.num).toLowerCase().includes(q))&&(!fp||(j.proj||'').toLowerCase().includes(fp))&&(!fe||j.etapa===fe));
   // access filter
   if(currentUser==='analuiza'||currentUser==='bruno'||currentUser==='anaingrid'){
     const nm=p.nome;
@@ -745,7 +748,7 @@ function openPanel(id){
   const j=jobs.find(x=>x.id===id);if(!j)return;
   activeJob=id;
   document.getElementById('p-title').textContent=j.num+' — '+j.titulo;
-  document.getElementById('p-sub').textContent=j.cli+' · Prazo: '+fd(j.prazo);
+  document.getElementById('p-sub').textContent=(j.proj||j.cli)+' · Prazo: '+fd(j.prazo);
   rPanel(j);
   document.getElementById('panel').classList.add('open');
 }
@@ -896,17 +899,91 @@ function openNewJob(){
   const po=clientes.map(c=>`<option>${c.nome}</option>`).join('');
   modal(`<div class="mo"><div class="moh"><div class="mot">Novo job</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
     <div class="fg"><label class="fl">Título do job</label><input class="fi" id="nj-t" placeholder="Ex: POST 20 — Conteúdo institucional"></div>
-    <div class="frow"><div class="fg"><label class="fl">Cliente</label><select class="fi" id="nj-c">${po}</select></div><div class="fg"><label class="fl">Número (ex: 401.5)</label><input class="fi" id="nj-n"></div></div>
+    <div class="frow"><div class="fg"><label class="fl">Cliente</label><select class="fi" id="nj-c" onchange="updateProjSug()">${po}</select></div><div class="fg"><label class="fl">Número (ex: 401.5)</label><input class="fi" id="nj-n" oninput="updateProjSug()"></div></div>
+    <div class="fg"><label class="fl">Projeto / Pasta no Drive</label>
+      <div style="display:flex;gap:6px">
+        <input class="fi" id="nj-proj" placeholder="Ex: 401 ABC — Jun/26" style="flex:1">
+        <select class="fi fi-sm" id="nj-mes" style="width:70px" onchange="updateProjSug()"><option>Jan</option><option>Fev</option><option>Mar</option><option>Abr</option><option>Mai</option><option selected>Jun</option><option>Jul</option><option>Ago</option><option>Set</option><option>Out</option><option>Nov</option><option>Dez</option></select>
+        <input class="fi fi-sm" id="nj-ano" style="width:42px" value="26" oninput="updateProjSug()">
+      </div>
+    </div>
     <div class="frow"><div class="fg"><label class="fl">Prazo</label><input class="fi" type="date" id="nj-pr" value="${HOJE_STR}"></div><div class="fg"><label class="fl">Criação — responsável</label><select class="fi" id="nj-rc"><option>Ana Luiza</option><option>Bruno</option></select></div></div>
     <div class="info-box"><i class="ti ti-info-circle"></i><span>Fluxo: Operações → Redação → Criação → Revisão → Agendamento → Concluído</span></div>
     <div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveJob()">Criar job</button></div>
   </div>`);
 }
+function duplicarJob(id){
+  const j=jobs.find(x=>x.id===id);
+  if(!j)return;
+  const po=clientes.map(c=>`<option${c.nome===j.cli?' selected':''}>${c.nome}</option>`).join('');
+  modal(`<div class="mo"><div class="moh"><div class="mot"><i class="ti ti-copy"></i> Duplicar job</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="info-box" style="background:var(--gl);color:var(--gd)"><i class="ti ti-info-circle"></i><span>Baseado em: <strong>${j.num} — ${j.titulo.slice(0,40)}</strong></span></div>
+    <div class="fg"><label class="fl">Título do job</label><input class="fi" id="dup-t" value="${j.titulo}"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Cliente</label><select class="fi" id="dup-c">${po}</select></div>
+      <div class="fg"><label class="fl">Número</label><input class="fi" id="dup-n" placeholder="Ex: ${j.num.split('.')[0]}.${(parseInt(j.num.split('.')[1]||0)+1)}"></div>
+    </div>
+    <div class="fg"><label class="fl">Projeto / Pasta no Drive</label><input class="fi" id="dup-proj" value="${j.proj||''}"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Prazo</label><input class="fi" type="date" id="dup-pr" value="${j.prazo}"></div>
+      <div class="fg"><label class="fl">Criação — responsável</label>
+        <select class="fi" id="dup-rc">
+          <option${j.rc==='Ana Luiza'?' selected':''}>Ana Luiza</option>
+          <option${j.rc==='Bruno'?' selected':''}>Bruno</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Etapa inicial</label>
+      <select class="fi" id="dup-etapa">
+        <option value="Operações" selected>Operações (início padrão)</option>
+        <option value="Redação">Redação</option>
+        <option value="Criação">Criação</option>
+      </select>
+    </div>
+    <div class="mof">
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn btng" onclick="saveDupJob()"><i class="ti ti-copy"></i> Duplicar</button>
+    </div>
+  </div>`);
+}
+function saveDupJob(){
+  const t=document.getElementById('dup-t').value.trim();
+  if(!t)return;
+  const etapa=document.getElementById('dup-etapa').value;
+  const rc=document.getElementById('dup-rc').value;
+  const f=FLUXO.find(x=>x.e==='Criação');
+  if(f){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
+  const novoJob={
+    id:++nid,
+    num:document.getElementById('dup-n').value||'novo.'+nid,
+    titulo:t,
+    cli:document.getElementById('dup-c').value,
+    proj:document.getElementById('dup-proj').value,
+    etapa:etapa,
+    prazo:document.getElementById('dup-pr').value,
+    status:'Pendente',
+    rc:rc,
+    hist:[{e:etapa,r:FLUXO.find(x=>x.e===etapa)?.r||'Jéssica Sousa',ts:now(),n:'Job duplicado'}]
+  };
+  jobs.unshift(novoJob);
+  closeM();
+  rDash();
+  renderJobs();
+  toast('Job duplicado!\n'+novoJob.num+' — '+novoJob.titulo.slice(0,40));
+}
+function updateProjSug(){
+  const num=(document.getElementById('nj-n')?.value||'').split('.')[0];
+  const cli=(document.getElementById('nj-c')?.value||'').split(' ')[0];
+  const mes=document.getElementById('nj-mes')?.value||'';
+  const ano=document.getElementById('nj-ano')?.value||'';
+  const el=document.getElementById('nj-proj');
+  if(el&&num&&cli&&mes&&ano) el.value=num+' '+cli+' — '+mes+'/'+ano;
+}
 function saveJob(){
   const t=document.getElementById('nj-t').value.trim();if(!t)return;
   const rc=document.getElementById('nj-rc').value;
   const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
-  jobs.unshift({id:++nid,num:document.getElementById('nj-n').value||'novo.'+nid,titulo:t,cli:document.getElementById('nj-c').value,etapa:'Operações',prazo:document.getElementById('nj-pr').value,status:'Pendente',rc,hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
+  jobs.unshift({id:++nid,num:document.getElementById('nj-n').value||'novo.'+nid,titulo:t,cli:document.getElementById('nj-c').value,proj:document.getElementById('nj-proj')?.value||document.getElementById('nj-c').value,etapa:'Operações',prazo:document.getElementById('nj-pr').value,status:'Pendente',rc,hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
   closeM();rDash();renderJobs();toast(`Job criado!\nPara: Ana Ingrid\nAguardando redação.`);
 }
 
@@ -1065,23 +1142,22 @@ async function ensureDriveFolder() {
   }
 }
 
+async function ensureSubFolder(parentId, name) {
+  const q2 = encodeURIComponent("name='"+name+"' and '"+parentId+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false");
+  const r2 = await fetch('https://www.googleapis.com/drive/v3/files?q='+q2+'&fields=files(id,name)',{headers:{Authorization:'Bearer '+driveToken}});
+  const d2 = await r2.json();
+  if(d2.files&&d2.files.length>0) return d2.files[0].id;
+  const cr2 = await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{Authorization:'Bearer '+driveToken,'Content-Type':'application/json'},body:JSON.stringify({name:name,mimeType:'application/vnd.google-apps.folder',parents:[parentId]})});
+  const fd2 = await cr2.json();
+  return fd2.id;
+}
 async function getJobFolderId(jobId) {
   const j = jobs.find(x=>x.id===jobId);
   if(!j || !rootFolderId) return null;
+  const projName = j.proj || j.cli;
+  const projFolderId = await ensureSubFolder(rootFolderId, projName);
   const fname = j.num + ' — ' + j.titulo.slice(0,40);
-  const q = encodeURIComponent(`name='${fname}' and '${rootFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
-    headers: {Authorization: 'Bearer '+driveToken}
-  });
-  const data = await res.json();
-  if(data.files && data.files.length > 0) return data.files[0].id;
-  const cr = await fetch('https://www.googleapis.com/drive/v3/files', {
-    method: 'POST',
-    headers: {Authorization: 'Bearer '+driveToken, 'Content-Type': 'application/json'},
-    body: JSON.stringify({name: fname, mimeType: 'application/vnd.google-apps.folder', parents: [rootFolderId]})
-  });
-  const fd = await cr.json();
-  return fd.id;
+  return await ensureSubFolder(projFolderId, fname);
 }
 
 function triggerUpload(jobId) {

@@ -1701,12 +1701,15 @@ function buildComentariosHTML(jobId){
     +'<div class="sec-label" style="margin-bottom:8px">Comentários</div>'
     +'<div id="comentarios-list-'+jobId+'" style="max-height:220px;overflow-y:auto;margin-bottom:10px">'+comsHTML+'</div>'
     +'<div style="position:relative">'
-    +'<textarea class="comment-input" id="ci-'+jobId+'" placeholder="Escreva um comentário... use @ para mencionar" oninput="handleMention(event,'+jobId+')" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComentario('+jobId+')}" rows="2"></textarea>'
+    +'<textarea class="comment-input" id="ci-'+jobId+'" placeholder="Escreva um comentário... use @ para mencionar" oninput="handleMention(event,'+jobId+')" onkeydown="ciKeydown(event,'+jobId+')" rows="2"></textarea>'
     +'<div class="mention-dropdown" id="md-'+jobId+'"></div>'
     +'<div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="btn btn-sm btng" onclick="sendComentario('+jobId+')"><i class="ti ti-send"></i> Enviar</button></div>'
     +'</div></div>';
 }
 
+function ciKeydown(event,jobId){
+  if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComentario(jobId);}
+}
 function handleMention(event,jobId){
   const el=document.getElementById('ci-'+jobId);
   const dd=document.getElementById('md-'+jobId);

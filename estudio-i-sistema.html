@@ -780,7 +780,20 @@ function rPanel(j){
   if(fluxoDiv) {
     const existingEnd = body.innerHTML.lastIndexOf('</select>');
     if(existingEnd > 0) {
-      body.innerHTML = body.innerHTML + '</div><div id="tab-anexos" class="tab-content"><div id="drive-files-'+j.id+'"></div><div class="drive-drop" id="drop-'+j.id+'" ondragover="ev.preventDefault()" ondrop="handleDrop(event,'+j.id+')" onclick="triggerUpload('+j.id+')"><i class="ti ti-cloud-upload"></i><div style=\"font-size:12px;font-weight:500\">Arraste arquivos aqui ou clique para selecionar</div><div style=\"font-size:11px;margin-top:3px\">Qualquer tipo de arquivo</div></div><input type="file" id="file-input-'+j.id+'" multiple style=\"display:none\" onchange="uploadFiles(this.files,'+j.id+')"><div id="upload-progress-'+j.id+'"></div></div>';
+      const anexosHtml = `<div id="tab-anexos" class="tab-content">
+        <div id="drive-files-${j.id}"></div>
+        <div class="drive-drop" id="drop-${j.id}" 
+          ondragover="event.preventDefault()" 
+          ondrop="handleDrop(event,${j.id})" 
+          onclick="triggerUpload(${j.id})">
+          <i class="ti ti-cloud-upload"></i>
+          <div style="font-size:12px;font-weight:500">Arraste arquivos aqui ou clique para selecionar</div>
+          <div style="font-size:11px;margin-top:3px">Qualquer tipo de arquivo</div>
+        </div>
+        <input type="file" id="file-input-${j.id}" multiple style="display:none" onchange="uploadFiles(this.files,${j.id})">
+        <div id="upload-progress-${j.id}"></div>
+      </div>`;
+      body.innerHTML = body.innerHTML + anexosHtml;
       rDriveFiles(j.id);
     }
   }
@@ -943,7 +956,7 @@ function openClienteDetail(id){
       </div>
     </div>
     <div class="mof"><button class="btn btng" onclick="closeM()">Fechar</button></div>
-  </div>\`);
+  </div>`);
 }
 
 // =================== TOAST ===================

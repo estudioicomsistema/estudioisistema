@@ -1721,7 +1721,7 @@ function handleMention(event,jobId){
     const hits=colabs.filter(c=>c.nome.toLowerCase().includes(q)||c.cargo.toLowerCase().includes(q));
     if(hits.length){
       dd.style.display='block';
-      dd.innerHTML=hits.map((c,i)=>'<div class="mention-item" onclick="insertMention('+jobId+',''+c.nome+'')">'
+      dd.innerHTML=hits.map((c,i)=>'<div class="mention-item" onclick="insertMentionIdx('+jobId+','+i+')" data-nome="'+c.nome.replace(/"/g,'&quot;')+'">'
         +'<div class="comment-av2" style="'+avS(i)+'">'+ini(c.nome)+'</div>'
         +'<div><div style="font-size:12px;font-weight:500">'+c.nome+'</div><div style="font-size:10px;color:var(--muted)">'+c.cargo+'</div></div>'
         +'</div>').join('');
@@ -1731,6 +1731,13 @@ function handleMention(event,jobId){
   dd.style.display='none';
 }
 
+function insertMentionIdx(jobId,idx){
+  const dd=document.getElementById('md-'+jobId);
+  if(!dd)return;
+  const items=dd.querySelectorAll('.mention-item');
+  const nome=items[idx]?.dataset.nome||colabs[idx]?.nome||'';
+  insertMention(jobId,nome);
+}
 function insertMention(jobId,nome){
   const el=document.getElementById('ci-'+jobId);
   const dd=document.getElementById('md-'+jobId);

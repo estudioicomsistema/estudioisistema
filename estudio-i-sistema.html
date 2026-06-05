@@ -297,6 +297,23 @@ textarea.fi{resize:vertical;min-height:70px}
 .access-lock{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;gap:8px;color:var(--muted)}
 .access-lock i{font-size:32px;color:var(--faint)}
 .access-lock p{font-size:13px}
+/* TASKS */
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:.5px solid var(--border)}
+.task-item:last-child{border-bottom:none}
+.task-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.task-check:hover{border-color:var(--g)}
+.task-check.done{background:var(--g);border-color:var(--g);color:#fff}
+.task-body{flex:1;min-width:0}
+.task-titulo{font-size:12px;font-weight:500;line-height:1.4}
+.task-titulo.done{text-decoration:line-through;color:var(--muted)}
+.task-meta{font-size:10px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.task-add{display:flex;gap:6px;margin-top:8px}
+.task-add input{flex:1;padding:6px 9px;border:.5px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.task-add input:focus{outline:none;border-color:var(--g)}
+.prazo-dual{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;padding:10px 12px;background:var(--hover);border-radius:8px}
+.prazo-item label{font-size:10px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.prazo-item input{width:100%;padding:5px 8px;border:.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;background:var(--card);color:var(--text)}
+.prazo-item input:focus{outline:none;border-color:var(--g)}
 /* DRIVE */
 .drive-drop{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted)}
 .drive-drop:hover,.drive-drop.drag{border-color:var(--g);background:var(--gl);color:var(--gd)}
@@ -545,11 +562,11 @@ let currentUser='irene';
 // JOBS
 let jobs=[
   {id:1,num:'2.6.1',titulo:'POST 1 — fixado — Criada pela Estúdio',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Criação',prazo:'2026-06-10',status:'No prazo',rc:'Ana Luiza',
-   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}]},
+   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:38',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 09:12',n:'Texto entregue'},{e:'Criação',r:'Ana Luiza',ts:'31/05 às 14:00',n:'Em desenvolvimento'}],tarefas:[{id:1,titulo:'Briefing',resp:'Jéssica Sousa',prazo:'2026-06-08',done:false},{id:2,titulo:'Texto pronto',resp:'Ana Ingrid',prazo:'2026-06-09',done:true}],prazoInterno:'2026-06-09',prazoFinal:'2026-06-10'},
   {id:2,num:'2.6.2',titulo:'POST 2 — fixado — Marketing para negócios',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Redação',prazo:'2026-06-05',status:'Em atraso',rc:'Bruno',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'29/05 às 17:37',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'30/05 às 11:00',n:'Em andamento'}]},
   {id:3,num:'1.6.1',titulo:'POST 16 — Legado empresarial',cli:'ABC Prosperity',projNum:'1.6',proj:'ABC Prosperity — Jun/26',etapa:'Agendamento',prazo:'2026-06-16',status:'No prazo',rc:'Ana Luiza',
-   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}]},
+   hist:[{e:'Operações',r:'Jéssica Sousa',ts:'28/05 às 10:00',n:'Job criado'},{e:'Redação',r:'Ana Ingrid',ts:'28/05 às 15:30',n:'Texto aprovado'},{e:'Criação',r:'Ana Luiza',ts:'29/05 às 12:00',n:'Arte entregue'},{e:'Revisão',r:'Jéssica Sousa',ts:'30/05 às 09:00',n:'Aprovado'},{e:'Agendamento',r:'Jéssica Sousa',ts:'31/05 às 08:00',n:'Em agendamento'}],tarefas:[{id:3,titulo:'Agendar post Instagram',resp:'Jéssica Sousa',prazo:'2026-06-15',done:false}],prazoInterno:'2026-06-14',prazoFinal:'2026-06-16'},
   {id:4,num:'3.6.1',titulo:'POST 5 — Identidade Visual Digital',cli:'Gontijo Mendes',projNum:'3.6',proj:'Gontijo Mendes — Jun/26',etapa:'Operações',prazo:'2026-06-20',status:'Pendente',rc:'Ana Luiza',
    hist:[{e:'Operações',r:'Jéssica Sousa',ts:'04/06 às 09:00',n:'Job criado'}]},
   {id:5,num:'2.6.3',titulo:'POST 08 — 03/jun — Dia…',cli:'CERN Consultoria',projNum:'2.6',proj:'CERN Consultoria — Jun/26',etapa:'Revisão',prazo:'2026-06-08',status:'No prazo',rc:'Bruno',
@@ -702,7 +719,14 @@ function jcard(j,compact=false){
       <span class="badge ${j.status==='Em atraso'?'blate':j.status==='No prazo'?'bok':'bpend'}">${j.status}</span>
       <button class="ibb" style="font-size:13px;flex-shrink:0" title="Duplicar job" onclick="event.stopPropagation();duplicarJob(${j.id})"><i class="ti ti-copy"></i></button>
     </div>
-    ${!compact?`<div class="jmeta"><i class="ti ti-folder" style="font-size:11px"></i> ${j.proj||j.cli} <span>·</span> <i class="ti ti-calendar" style="font-size:11px"></i> ${fd(j.prazo)} <span>·</span> <i class="ti ti-user" style="font-size:11px"></i> ${last?.r||'—'}</div>`:''}
+    ${!compact?`<div class="jmeta">
+      <i class="ti ti-folder" style="font-size:11px"></i> ${j.proj||j.cli}
+      <span>·</span>
+      <i class="ti ti-calendar" style="font-size:11px"></i> ${fd(j.prazoFinal||j.prazo)}
+      <span>·</span>
+      <i class="ti ti-user" style="font-size:11px"></i> ${last?.r||'—'}
+      ${(j.tarefas&&j.tarefas.length)?`<span>·</span><span style="font-size:10px;padding:1px 6px;border-radius:10px;background:${j.tarefas.filter(t=>!t.done).length>0?'var(--aml)':'var(--gl)'};color:${j.tarefas.filter(t=>!t.done).length>0?'var(--am)':'var(--gd)'}">Abertas ${j.tarefas.filter(t=>!t.done).length}/${j.tarefas.length}</span>`:''}
+    </div>`:''}
   </div>`;
 }
 function renderJobs(){
@@ -773,6 +797,7 @@ function rPanel(j){
   const rcSel=j.etapa==='Criação'?`<div style="margin-bottom:14px;padding:10px 12px;background:var(--hover);border-radius:8px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Responsável pela Criação</div><select class="fi" onchange="setRC(${j.id},this.value)"><option${j.rc==='Ana Luiza'?' selected':''}>Ana Luiza</option><option${j.rc==='Bruno'?' selected':''}>Bruno</option></select></div>`:'';
   document.getElementById('p-body').innerHTML=`<div class="tabs" style="margin-bottom:14px">
     <div class="tab on" onclick="panelTab(this,'fluxo')">Fluxo</div>
+    <div class="tab" onclick="panelTab(this,'tarefas')">Tarefas <span style="font-size:10px;background:${(j.tarefas||[]).filter(t=>!t.done).length>0?'var(--aml)':'var(--gl)'};color:${(j.tarefas||[]).filter(t=>!t.done).length>0?'var(--am)':'var(--gd)'};border-radius:10px;padding:1px 5px">${(j.tarefas||[]).filter(t=>!t.done).length}/${(j.tarefas||[]).length}</span></div>
     <div class="tab" onclick="panelTab(this,'anexos')">Anexos <span id="anexos-count-${j.id}" style="font-size:10px;background:var(--gl);color:var(--gd);border-radius:10px;padding:1px 5px;margin-left:2px">${(jobAnexos[j.id]||[]).length||''}</span></div>
   </div>
   <div id="tab-fluxo" class="tab-content on">
@@ -1119,7 +1144,9 @@ function saveJob(){
   if(!projNum||!nextNum){toast('Selecione cliente e mês antes de criar.');return;}
   const rc=document.getElementById('nj-rc').value;
   const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
-  jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:projNum,proj:projNome,etapa:'Operações',prazo:document.getElementById('nj-pr').value,status:'Pendente',rc,hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
+  const prazoInt=document.getElementById('nj-pr-int')?.value||HOJE_STR;
+  const prazoFin=document.getElementById('nj-pr-fin')?.value||HOJE_STR;
+  jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:projNum,proj:projNome,etapa:'Operações',prazo:prazoFin,prazoInterno:prazoInt,prazoFinal:prazoFin,status:'Pendente',rc,tarefas:[],hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
   closeM();rDash();renderJobs();toast('Job '+nextNum+' criado!\nPara: Ana Ingrid\nAguardando redação.');
 }
 
@@ -1331,6 +1358,100 @@ async function ensureDriveFolder() {
     const fd = await cr.json();
     rootFolderId = fd.id;
   }
+}
+
+function buildTarefasHTML(jobId, equipeOpts){
+  const j=jobs.find(x=>x.id===jobId);
+  if(!j)return '';
+  const tarefas=j.tarefas||[];
+  const tarefasHTML=tarefas.map(t=>`
+    <div class="task-item" id="task-${t.id}">
+      <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${jobId},${t.id})">
+        ${t.done?'<i class="ti ti-check" style="font-size:10px"></i>':''}
+      </div>
+      <div class="task-body">
+        <div class="task-titulo ${t.done?'done':''}">${t.titulo}</div>
+        <div class="task-meta">
+          ${t.resp?`<span><i class="ti ti-user" style="font-size:10px"></i> ${t.resp}</span>`:''}
+          ${t.prazo?`<span><i class="ti ti-calendar" style="font-size:10px"></i> ${fd(t.prazo)}</span>`:''}
+        </div>
+      </div>
+      <button class="ibb" style="font-size:12px;flex-shrink:0" onclick="deleteTask(${jobId},${t.id})"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+  return `<div id="tab-tarefas" class="tab-content">
+    <div class="prazo-dual">
+      <div class="prazo-item">
+        <label>Prazo interno</label>
+        <input type="date" value="${j.prazoInterno||j.prazo||''}" onchange="setJobPrazo(${jobId},'prazoInterno',this.value)">
+      </div>
+      <div class="prazo-item">
+        <label>Prazo final entrega</label>
+        <input type="date" value="${j.prazoFinal||j.prazo||''}" onchange="setJobPrazo(${jobId},'prazoFinal',this.value)">
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Tarefas <span style="font-weight:400;text-transform:none">(${tarefas.filter(t=>!t.done).length} abertas de ${tarefas.length})</span></div>
+    <div id="tarefas-list-${jobId}">${tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>'}</div>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px">
+      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px">Nova tarefa</div>
+      <div class="fg"><input class="fi fi-sm" id="nt-titulo-${jobId}" placeholder="Descrição da tarefa" style="margin-bottom:6px"></div>
+      <div class="frow" style="margin-bottom:6px">
+        <div><select class="fi fi-sm" id="nt-resp-${jobId}"><option value="">— Responsável —</option>${equipeOpts}</select></div>
+        <div><input class="fi fi-sm" type="date" id="nt-prazo-${jobId}"></div>
+      </div>
+      <button class="btn btn-sm btng" onclick="addTarefa(${jobId})"><i class="ti ti-plus"></i> Adicionar tarefa</button>
+    </div>
+  </div>`;
+}
+
+function addTarefa(jobId){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  const t=document.getElementById('nt-titulo-'+jobId)?.value.trim();
+  if(!t){document.getElementById('nt-titulo-'+jobId)?.focus();return;}
+  if(!j.tarefas)j.tarefas=[];
+  j.tarefas.push({
+    id:++nid,
+    titulo:t,
+    resp:document.getElementById('nt-resp-'+jobId)?.value||'',
+    prazo:document.getElementById('nt-prazo-'+jobId)?.value||'',
+    done:false
+  });
+  document.getElementById('nt-titulo-'+jobId).value='';
+  document.getElementById('nt-resp-'+jobId).value='';
+  document.getElementById('nt-prazo-'+jobId).value='';
+  // Refresh tasks list
+  const equipeOpts=colabs.map(c=>`<option>${c.nome}</option>`).join('');
+  const newHTML=buildTarefasHTML(jobId,equipeOpts);
+  const tabEl=document.getElementById('tab-tarefas');
+  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=newHTML;const newTab=tmp.querySelector('#tab-tarefas');if(newTab){tabEl.innerHTML=newTab.innerHTML;}}
+  rDash();renderJobs();
+}
+
+function toggleTask(jobId,taskId){
+  const j=jobs.find(x=>x.id===jobId);if(!j||!j.tarefas)return;
+  const t=j.tarefas.find(x=>x.id===taskId);if(!t)return;
+  t.done=!t.done;
+  const equipeOpts=colabs.map(c=>`<option>${c.nome}</option>`).join('');
+  const newHTML=buildTarefasHTML(jobId,equipeOpts);
+  const tabEl=document.getElementById('tab-tarefas');
+  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=newHTML;const newTab=tmp.querySelector('#tab-tarefas');if(newTab){tabEl.innerHTML=newTab.innerHTML;}}
+  rDash();renderJobs();
+}
+
+function deleteTask(jobId,taskId){
+  const j=jobs.find(x=>x.id===jobId);if(!j||!j.tarefas)return;
+  j.tarefas=j.tarefas.filter(x=>x.id!==taskId);
+  const equipeOpts=colabs.map(c=>`<option>${c.nome}</option>`).join('');
+  const newHTML=buildTarefasHTML(jobId,equipeOpts);
+  const tabEl=document.getElementById('tab-tarefas');
+  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=newHTML;const newTab=tmp.querySelector('#tab-tarefas');if(newTab){tabEl.innerHTML=newTab.innerHTML;}}
+  rDash();renderJobs();
+}
+
+function setJobPrazo(jobId,field,val){
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  j[field]=val;
+  if(field==='prazoFinal')j.prazo=val;
+  rDash();renderJobs();
 }
 
 async function ensureSubFolder(parentId, name) {

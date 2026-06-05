@@ -872,9 +872,9 @@ function rPanel(j){
   // Build foot buttons
   let foot='';
   if(done){foot='<div style="text-align:center;font-size:12px;color:var(--muted)"><i class="ti ti-flag"></i> Job concluído</div>';}
-  else if(j.etapa==='Revisão'){foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-check"></i> Aprovar → Agendamento</button><button class="btn" onclick="reprovar('+j.id+','Criação')"><i class="ti ti-arrow-back"></i> Devolver à Criação</button><button class="btn" onclick="reprovar('+j.id+','Redação')"><i class="ti ti-arrow-back"></i> Devolver à Redação</button>';}
+  else if(j.etapa==='Revisão'){foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-check"></i> Aprovar → Agendamento</button>'+' <button class="btn" onclick="reprovar('+j.id+',&dc;Criação&dc;)"><i class="ti ti-arrow-back"></i> Devolver à Criação</button>'+' <button class="btn" onclick="reprovar('+j.id+',&dc;Redação&dc;)"><i class="ti ti-arrow-back"></i> Devolver à Redação</button>';foot=foot.replace(/&dc;/g,"'");}
   else if(j.etapa==='Agendamento'){foot='<button class="btn btng" onclick="concluir('+j.id+')"><i class="ti ti-flag"></i> Marcar como concluído</button>';}
-  else{const label=j.etapa==='Operações'?'Entregar para Redação':j.etapa==='Redação'?'Entregar para Criação':j.etapa==='Criação'?'Entregar para Revisão':'Avançar';foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-arrow-right"></i> '+label+'</button>';}
+  else{const lbl=j.etapa==='Operações'?'Entregar para Redação':j.etapa==='Redação'?'Entregar para Criação':j.etapa==='Criação'?'Entregar para Revisão':'Avançar';foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-arrow-right"></i> '+lbl+'</button>';}
   document.getElementById('p-foot').innerHTML=foot;
 }
 function setRC(id,v){const j=jobs.find(x=>x.id===id);if(!j)return;j.rc=v;const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=v;f.em=v==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}rPanel(j);}

@@ -339,6 +339,7 @@ textarea.fi{resize:vertical;min-height:70px}
     <nav class="nav-main">
       <button class="nav-btn on" onclick="go('dash')">Dashboard</button>
       <button class="nav-btn" onclick="go('jobs')">Jobs</button>
+      <button class="nav-btn" onclick="go('projetos')">Projetos</button>
       <button class="nav-btn" onclick="go('calendario')">Calendário</button>
       <button class="nav-btn" onclick="go('propostas')">Propostas</button>
       <button class="nav-btn" onclick="go('clientes')">Clientes</button>
@@ -434,6 +435,21 @@ textarea.fi{resize:vertical;min-height:70px}
     </div>
   </div>
   <div id="jobs-content"></div>
+</div>
+
+<!-- =================== PROJETOS =================== -->
+<div id="v-projetos" class="view">
+  <div class="shead">
+    <h2>Projetos</h2>
+    <button class="btn btng" onclick="openNewProjeto()"><i class="ti ti-plus"></i> Novo projeto</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <input class="fi fi-sm" style="flex:1;min-width:160px" placeholder="Buscar projeto..." oninput="rProjetos()" id="s-proj">
+    <select class="fi fi-sm" style="width:160px" onchange="rProjetos()" id="f-proj-cli">
+      <option value="">Todos os clientes</option>
+    </select>
+  </div>
+  <div id="proj-list"></div>
 </div>
 
 <!-- =================== CALENDÁRIO =================== -->
@@ -551,8 +567,8 @@ const EC={Operações:['#E6F1FB','#185FA5'],Redação:['#E1F5EE','#0F6E56'],Cria
 
 // PERFIS
 const PERFIS={
-  irene:  {nome:'Irene',       ini:'IR',cargo:'Gestora',   acesso:['dash','jobs','calendario','propostas','clientes','colaboradores','timesheet']},
-  jessica:{nome:'Jéssica',     ini:'JS',cargo:'Operações', acesso:['dash','jobs','calendario','clientes','timesheet']},
+  irene:  {nome:'Irene',       ini:'IR',cargo:'Gestora',   acesso:['dash','jobs','projetos','calendario','propostas','clientes','colaboradores','timesheet']},
+  jessica:{nome:'Jéssica',     ini:'JS',cargo:'Operações', acesso:['dash','jobs','projetos','calendario','clientes','timesheet']},
   analuiza:{nome:'Ana Luiza',  ini:'AL',cargo:'Criação',   acesso:['dash','jobs','timesheet']},
   anaingrid:{nome:'Ana Ingrid',ini:'AI',cargo:'Redação',   acesso:['dash','jobs','timesheet']},
   bruno:  {nome:'Bruno',       ini:'BR',cargo:'Criação',   acesso:['dash','jobs','timesheet']},
@@ -662,7 +678,7 @@ function go(v){
     else{lock.style.display='none';cont.style.display='block';rPropostas();}
     return;
   }
-  const renders={dash:rDash,jobs:renderJobs,calendario:rCal,clientes:rClientes,colaboradores:rColabs,timesheet:rTS};
+  const renders={dash:rDash,jobs:renderJobs,projetos:rProjetos,calendario:rCal,clientes:rClientes,colaboradores:rColabs,timesheet:rTS};
   renders[v]?.();
 }
 
@@ -863,6 +879,175 @@ function rCal(){
 }
 function calNav(d){calMonth+=d;if(calMonth<0){calMonth=11;calYear--;}if(calMonth>11){calMonth=0;calYear++;}rCal();}
 function calGoToday(){calYear=HOJE_DT.getFullYear();calMonth=HOJE_DT.getMonth();rCal();}
+
+// =================== PROJETOS ===================
+function rProjetos(){
+  const q=(document.getElementById('s-proj')?.value||'').toLowerCase();
+  const fc=document.getElementById('f-proj-cli')?.value||'';
+  // populate client filter
+  const sel=document.getElementById('f-proj-cli');
+  if(sel&&sel.options.length===1){
+    clientes.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent='#'+c.num+' '+c.nome;sel.appendChild(o);});
+  }
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const filtered=projetos.filter(p=>
+    (!q||(p.nome).toLowerCase().includes(q))&&
+    (!fc||p.cliId==fc)
+  );
+  const container=document.getElementById('proj-list');
+  if(!container)return;
+  if(!filtered.length){container.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center;font-size:13px">Nenhum projeto cadastrado.</div>';return;}
+  container.innerHTML=filtered.map(p=>{
+    const cli=clientes.find(x=>x.id===p.cliId);
+    const pjobs=jobs.filter(j=>j.projNum===p.num);
+    const ativos=pjobs.filter(j=>j.etapa!=='Concluído').length;
+    const atrasados=pjobs.filter(j=>j.status==='Em atraso').length;
+    return `<div style="background:var(--card);border:.5px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer" onclick="toggleProjExpand(${p.id})">
+        <div style="width:36px;height:36px;border-radius:8px;background:var(--g);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${p.num}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">${p.nome}</div>
+          <div style="font-size:11px;color:var(--muted)">${cli?.nome||'—'} · ${meses[p.mes-1]}/${String(p.ano).slice(-2)}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge bblue">${pjobs.length} jobs</span>
+          ${ativos?`<span class="badge bpend">${ativos} ativos</span>`:''}
+          ${atrasados?`<span class="badge blate">${atrasados} atrasados</span>`:''}
+        </div>
+        <button class="btn btn-sm" onclick="event.stopPropagation();openNewJobNoProjeto(${p.id})"><i class="ti ti-plus"></i> Job</button>
+        <button class="ibb" onclick="event.stopPropagation();editProjeto(${p.id})"><i class="ti ti-edit"></i></button>
+        <i class="ti ti-chevron-down" style="color:var(--muted);transition:transform .2s" id="chev-${p.id}"></i>
+      </div>
+      <div id="proj-jobs-${p.id}" style="display:none;border-top:.5px solid var(--border)">
+        ${pjobs.length?pjobs.map(j=>jcard(j,false)).join(''):'<div style="padding:14px 16px;font-size:12px;color:var(--muted)">Nenhum job neste projeto ainda.</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleProjExpand(id){
+  const el=document.getElementById('proj-jobs-'+id);
+  const chev=document.getElementById('chev-'+id);
+  if(!el)return;
+  const isOpen=el.style.display!=='none';
+  el.style.display=isOpen?'none':'block';
+  if(chev)chev.style.transform=isOpen?'':'rotate(180deg)';
+}
+
+function openNewProjeto(){
+  const cOpts=clientes.map(c=>`<option value="${c.id}">#${c.num} — ${c.nome}</option>`).join('');
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mesAtual=new Date().getMonth()+1;
+  const anoAtual=new Date().getFullYear();
+  const mOpts=meses.map((m,i)=>`<option value="${i+1}"${i+1===mesAtual?' selected':''}>${m}</option>`).join('');
+  modal(`<div class="mo"><div class="moh"><div class="mot">Novo projeto</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="fg"><label class="fl">Cliente</label><select class="fi" id="np-cli" onchange="updateProjetoNum()">${cOpts}</select></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Mês de referência</label><select class="fi" id="np-mes" onchange="updateProjetoNum()">${mOpts}</select></div>
+      <div class="fg"><label class="fl">Ano</label><input class="fi" id="np-ano" value="${anoAtual}" oninput="updateProjetoNum()"></div>
+    </div>
+    <div id="np-preview" style="padding:10px 12px;background:var(--gl);border-radius:8px;font-size:12px;color:var(--gd);font-weight:500;margin-bottom:12px">
+      Número gerado automaticamente
+    </div>
+    <div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveNovoProjeto()">Criar projeto</button></div>
+  </div>`);
+  updateProjetoNum();
+}
+
+function updateProjetoNum(){
+  const cliId=parseInt(document.getElementById('np-cli')?.value);
+  const mes=parseInt(document.getElementById('np-mes')?.value);
+  const ano=parseInt(document.getElementById('np-ano')?.value)||new Date().getFullYear();
+  const cli=clientes.find(x=>x.id===cliId);
+  if(!cli||!mes)return;
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const projNum=cli.num+'.'+mes;
+  const nome=cli.nome+' — '+meses[mes-1]+'/'+String(ano).slice(-2);
+  const preview=document.getElementById('np-preview');
+  if(preview){
+    preview.innerHTML='<strong>Número: '+projNum+'</strong><br>'+nome;
+    preview.dataset.projNum=projNum;
+    preview.dataset.nome=nome;
+    preview.dataset.cliId=cliId;
+    preview.dataset.mes=mes;
+    preview.dataset.ano=String(ano).slice(-2);
+  }
+}
+
+function saveNovoProjeto(){
+  const preview=document.getElementById('np-preview');
+  if(!preview?.dataset.projNum){toast('Selecione cliente e mês.');return;}
+  const {projNum,nome,cliId,mes,ano}=preview.dataset;
+  // Check if already exists
+  if(projetos.find(p=>p.num===projNum)){toast('Projeto '+projNum+' já existe!');return;}
+  const cli=clientes.find(x=>x.id==cliId);
+  projetos.push({id:++nid,num:projNum,cliId:parseInt(cliId),cliNum:cli?.num||0,nome,mes:parseInt(mes),ano:parseInt(ano)});
+  closeM();rProjetos();toast('Projeto '+projNum+' criado!');
+}
+
+function editProjeto(id){
+  const p=projetos.find(x=>x.id===id);if(!p)return;
+  const cli=clientes.find(x=>x.id===p.cliId);
+  modal(`<div class="mo"><div class="moh"><div class="mot">Editar projeto ${p.num}</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div class="fg"><label class="fl">Nome</label><input class="fi" id="ep-nome" value="${p.nome}"></div>
+    <div class="fg" style="font-size:12px;color:var(--muted)">Cliente: ${cli?.nome||'—'} · Número: ${p.num}</div>
+    <div class="mof">
+      <button class="btn btn-danger" onclick="deleteProjeto(${id})"><i class="ti ti-trash"></i></button>
+      <button class="btn" onclick="closeM()">Cancelar</button>
+      <button class="btn btng" onclick="saveEditProjeto(${id})">Salvar</button>
+    </div>
+  </div>`);
+}
+function saveEditProjeto(id){
+  const p=projetos.find(x=>x.id===id);if(!p)return;
+  p.nome=document.getElementById('ep-nome').value||p.nome;
+  closeM();rProjetos();
+}
+function deleteProjeto(id){
+  const p=projetos.find(x=>x.id===id);if(!p)return;
+  const pjobs=jobs.filter(j=>j.projNum===p.num);
+  if(pjobs.length&&!confirm('Este projeto tem '+pjobs.length+' job(s). Excluir mesmo assim?'))return;
+  projetos=projetos.filter(x=>x.id!==id);
+  closeM();rProjetos();
+}
+
+function openNewJobNoProjeto(projetoId){
+  // Pre-select project when creating job from project view
+  const p=projetos.find(x=>x.id===projetoId);if(!p)return;
+  const cli=clientes.find(x=>x.id===p.cliId);
+  const nextNum=getNextJobNum(p.num);
+  const equipeOpts=colabs.map(c=>`<option value="${c.nome}">${c.cargo} — ${c.nome}</option>`).join('');
+  modal(`<div class="mo"><div class="moh"><div class="mot">Novo job</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:8px 12px;background:var(--gl);border-radius:8px;font-size:12px;color:var(--gd);font-weight:500;margin-bottom:12px">
+      <i class="ti ti-folder"></i> ${p.nome} · Número: <strong>${nextNum}</strong>
+    </div>
+    <div class="fg"><label class="fl">Título do job</label><input class="fi" id="njp-t" placeholder="Ex: POST 20 — Conteúdo institucional"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Prazo interno</label><input class="fi" type="date" id="njp-pr-int" value="${HOJE_STR}"></div>
+      <div class="fg"><label class="fl">Prazo final de entrega</label><input class="fi" type="date" id="njp-pr-fin" value="${HOJE_STR}"></div>
+    </div>
+    <div class="fg"><label class="fl">Responsável inicial</label><select class="fi" id="njp-rc">${equipeOpts}</select></div>
+    <div class="info-box"><i class="ti ti-info-circle"></i><span>Fluxo: Operações → Redação → Criação → Revisão → Agendamento → Concluído</span></div>
+    <div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveJobDoProjeto(${projetoId},'${nextNum}')">Criar job</button></div>
+  </div>`);
+}
+
+function saveJobDoProjeto(projetoId, nextNum){
+  const p=projetos.find(x=>x.id===projetoId);if(!p)return;
+  const cli=clientes.find(x=>x.id===p.cliId);
+  const t=document.getElementById('njp-t')?.value.trim();
+  if(!t)return;
+  const prazoInt=document.getElementById('njp-pr-int')?.value||HOJE_STR;
+  const prazoFin=document.getElementById('njp-pr-fin')?.value||HOJE_STR;
+  const rc=document.getElementById('njp-rc')?.value||'Jéssica Sousa';
+  const f=FLUXO.find(x=>x.e==='Criação');
+  if(f&&(rc==='Ana Luiza'||rc==='Bruno')){f.r=rc;f.em=rc==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}
+  jobs.unshift({id:++nid,num:nextNum,titulo:t,cli:cli?.nome||'—',projNum:p.num,proj:p.nome,etapa:'Operações',prazo:prazoFin,prazoInterno:prazoInt,prazoFinal:prazoFin,status:'Pendente',rc,tarefas:[],hist:[{e:'Operações',r:'Jéssica Sousa',ts:now(),n:'Job criado'}]});
+  closeM();rProjetos();rDash();renderJobs();
+  toast('Job '+nextNum+' criado!
+Para: Ana Ingrid
+Aguardando redação.');
+}
 
 // =================== CLIENTES ===================
 function rClientes(){
@@ -1124,11 +1309,12 @@ function updateProjSug(){
   const mes=parseInt(document.getElementById('nj-mes')?.value);
   const ano=new Date().getFullYear();
   const preview=document.getElementById('nj-proj-preview');
-  if(!cliId||!mes||!preview)return;
+  if(!preview)return;
+  if(!cliId||!mes){preview.innerHTML='<span style="color:var(--muted)">Selecione cliente e mês</span>';return;}
   const proj=getOrCreateProjeto(cliId,mes,ano);
-  if(!proj)return;
+  if(!proj){preview.innerHTML='<span style="color:var(--muted)">Projeto não encontrado</span>';return;}
   const nextNum=getNextJobNum(proj.num);
-  preview.innerHTML='<i class="ti ti-folder" style="font-size:11px"></i> Projeto: <strong>'+proj.nome+'</strong><br><i class="ti ti-hash" style="font-size:11px"></i> Número do job: <strong>'+nextNum+'</strong>';
+  preview.innerHTML='<i class="ti ti-folder" style="font-size:11px"></i> <strong>'+proj.nome+'</strong><br><i class="ti ti-hash" style="font-size:11px"></i> Número gerado: <strong style="font-size:14px">'+nextNum+'</strong>';
   preview.dataset.projNum=proj.num;
   preview.dataset.nextNum=nextNum;
   preview.dataset.projNome=proj.nome;

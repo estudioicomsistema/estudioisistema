@@ -1594,10 +1594,10 @@ function buildTarefasHTML(jobId){
   const prazoInt=j.prazoInterno||j.prazo||'';
   const prazoFin=j.prazoFinal||j.prazo||'';
   const abertos=tarefas.filter(t=>!t.done).length;
-  return '<div id="tab-tarefas" class="tab-content">'
+  return ('<div id="tab-tarefas" class="tab-content">'
     +'<div class="prazo-dual">'
-    +'<div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazo('+jobId+','prazoInterno',this.value)"></div>'
-    +'<div class="prazo-item"><label>Prazo final de entrega</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazo('+jobId+','prazoFinal',this.value)"></div>'
+    +'<div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazo('+jobId+',&dc;prazoInterno&dc;,this.value)"></div>'
+    +'<div class="prazo-item"><label>Prazo final de entrega</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazo('+jobId+',&dc;prazoFinal&dc;,this.value)"></div>'
     +'</div>'
     +'<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Tarefas <span style="font-weight:400;text-transform:none">('+abertos+' abertas de '+tarefas.length+')</span></div>'
     +'<div id="tarefas-list-'+jobId+'">'+(tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>')+'</div>'
@@ -1607,7 +1607,7 @@ function buildTarefasHTML(jobId){
     +'<div class="frow" style="margin-bottom:6px"><select class="fi fi-sm" id="nt-cargo-'+jobId+'"><option value="">— Área —</option>'+cargoOpts+'</select>'
     +'<input class="fi fi-sm" type="date" id="nt-prazo-'+jobId+'"></div>'
     +'<button class="btn btn-sm btng" onclick="addTarefa('+jobId+')"><i class="ti ti-plus"></i> Adicionar</button>'
-    +'</div></div>';
+    +'</div></div>').replace(/&dc;/g,"'");
 }
 function addTarefa(jobId){
   const j=jobs.find(x=>x.id===jobId);if(!j)return;
@@ -1621,7 +1621,7 @@ function addTarefa(jobId){
     prazo:document.getElementById('nt-prazo-'+jobId)?.value||'',
     done:false
   });
-  document.getElementById('nt-titulo-'+jobId).value='';
+  document.getElementById('nt-titulo-'+jobId).value=''.replace(/&pi;/g,"'");
   document.getElementById('nt-cargo-'+jobId).value='';
   document.getElementById('nt-prazo-'+jobId).value='';
   // Refresh tasks list

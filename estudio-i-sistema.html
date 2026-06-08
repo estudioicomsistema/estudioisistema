@@ -143,12 +143,9 @@ textarea.fi{resize:vertical;min-height:70px}
 .tbl tr:hover td{background:var(--hover)}
 .tbl-total td{background:var(--hover)!important;font-weight:600}
 
-/* ===== PANEL ===== */
-.panel{position:fixed;top:0;right:-460px;width:440px;height:100%;background:var(--card);border-left:1px solid var(--border);z-index:200;display:flex;flex-direction:column;transition:right .25s cubic-bezier(.4,0,.2,1);box-shadow:-6px 0 32px rgba(0,0,0,.08)}
-.panel.open{right:0}
-.ph{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
-.pb{flex:1;overflow-y:auto;padding:18px}
-.pf{padding:12px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+/* ===== JOB MODAL ===== */
+#job-modal{display:none}
+#job-modal.open{display:flex!important}
 
 /* ===== FLOW STEPS ===== */
 .fstep{display:flex;gap:10px;padding:7px 0;position:relative}
@@ -544,14 +541,29 @@ textarea.fi{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<!-- PANEL -->
-<div class="panel" id="panel">
-  <div class="ph">
-    <div><div style="font-size:14px;font-weight:600" id="p-title">—</div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="p-sub">—</div></div>
-    <button class="ibb" onclick="closePanel()"><i class="ti ti-x"></i></button>
+<!-- JOB MODAL (full screen) -->
+<div id="job-modal" style="display:none;position:fixed;inset:0;z-index:300;background:var(--bg);flex-direction:column">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0">
+    <button class="btn btn-sm" id="jm-action-btn"></button>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:15px;font-weight:600" id="p-title">—</div>
+      <div style="font-size:11px;color:var(--muted)" id="p-sub">—</div>
+    </div>
+    <div id="p-foot" style="display:flex;gap:6px;align-items:center"></div>
+    <button class="ibb" onclick="closePanel()" title="Fechar"><i class="ti ti-x"></i></button>
   </div>
-  <div class="pb" id="p-body"></div>
-  <div class="pf" id="p-foot"></div>
+  <!-- Body: two columns -->
+  <div style="display:flex;flex:1;overflow:hidden">
+    <!-- LEFT: briefing + tarefas + fluxo -->
+    <div style="flex:1;min-width:0;overflow-y:auto;padding:20px;border-right:1px solid var(--border)">
+      <div id="jm-left"></div>
+    </div>
+    <!-- RIGHT: comentários + anexos -->
+    <div style="width:380px;flex-shrink:0;overflow-y:auto;padding:20px;display:flex;flex-direction:column">
+      <div id="jm-right"></div>
+    </div>
+  </div>
 </div>
 
 <!-- TOAST -->
@@ -767,10 +779,20 @@ function renderJobs(){
   const fp=(document.getElementById('f-p')?.value||'').toLowerCase();
   const fe=document.getElementById('f-e')?.value||'';
   let list=jobs.filter(j=>(!q||(j.titulo+j.num).toLowerCase().includes(q))&&(!fp||(j.proj||'').toLowerCase().includes(fp))&&(!fe||j.etapa===fe));
-  // access filter
+  // access filter: show jobs for current user's etapa OR where they are envolvidos
   if(currentUser==='analuiza'||currentUser==='bruno'||currentUser==='anaingrid'){
     const nm=p.nome;
-    list=list.filter(j=>j.hist.some(h=>h.r===nm)||FLUXO.find(f=>f.e===j.etapa)?.r===nm);
+    list=list.filter(j=>{
+      // In current etapa flow
+      if(FLUXO.find(f=>f.e===j.etapa)?.r===nm) return true;
+      // Was in flow history
+      if(j.hist&&j.hist.some(h=>h.r===nm)) return true;
+      // Is envolvido
+      if(j.envolvidos&&j.envolvidos.includes(nm)) return true;
+      // Was mentioned in comments
+      if(j.comentarios&&j.comentarios.some(c=>c.mencoes&&c.mencoes.includes(nm))) return true;
+      return false;
+    });
   }
   const cont=document.getElementById('jobs-content');
   if(jobView==='minha'){
@@ -811,13 +833,44 @@ function openPanel(id){
   const j=jobs.find(x=>x.id===id);if(!j)return;
   activeJob=id;
   document.getElementById('p-title').textContent=j.num+' — '+j.titulo;
-  document.getElementById('p-sub').textContent=(j.proj||j.cli)+' · Prazo: '+fd(j.prazo);
+  document.getElementById('p-sub').textContent=(j.proj||j.cli)+' · '+j.cli+' · Prazo: '+fd(j.prazoFinal||j.prazo);
   rPanel(j);
-  document.getElementById('panel').classList.add('open');
+  const modal=document.getElementById('job-modal');
+  modal.classList.add('open');
+  modal.style.display='flex';
 }
-function closePanel(){document.getElementById('panel').classList.remove('open');activeJob=null;}
+function closePanel(){
+  const modal=document.getElementById('job-modal');
+  modal.classList.remove('open');
+  modal.style.display='none';
+  activeJob=null;
+}
 function rPanel(j){
   const idx=eidx(j.etapa),done=j.etapa==='Concluído';
+  
+  // ---- ACTION BUTTON ----
+  let actionLabel='', actionFn='';
+  if(!done){
+    if(j.etapa==='Revisão'){actionLabel='Aprovar → Agendamento';actionFn='avancar('+j.id+')';}
+    else if(j.etapa==='Agendamento'){actionLabel='Marcar concluído';actionFn='concluir('+j.id+')';}
+    else{const lbl=j.etapa==='Operações'?'→ Redação':j.etapa==='Redação'?'→ Criação':j.etapa==='Criação'?'→ Revisão':'Avançar';actionLabel=lbl;actionFn='avancar('+j.id+')';}
+  }
+  const actionBtn=document.getElementById('jm-action-btn');
+  if(actionBtn){
+    if(!done&&actionLabel){actionBtn.style.display='';actionBtn.textContent=actionLabel;actionBtn.onclick=new Function(actionFn);}
+    else{actionBtn.style.display='none';}
+  }
+
+  // ---- FOOT BUTTONS (devolução) ----
+  let foot='';
+  if(j.etapa==='Revisão'){
+    foot='<button class="btn btn-sm" onclick="reprovar('+j.id+',&dc;Criação&dc;)"><i class="ti ti-arrow-back"></i> Devolver Criação</button>'
+      +'<button class="btn btn-sm" onclick="reprovar('+j.id+',&dc;Redação&dc;)"><i class="ti ti-arrow-back"></i> Devolver Redação</button>';
+    foot=foot.replace(/&dc;/g,"'");
+  }
+  document.getElementById('p-foot').innerHTML=foot;
+
+  // ---- LEFT COLUMN ----
   const steps=FLUXO.map((f,i)=>{
     const isDone=i<idx||done,isActive=i===idx&&!done;
     const hist=j.hist.filter(h=>h.e===f.e);const last=hist[hist.length-1];
@@ -831,51 +884,84 @@ function rPanel(j){
       +'</div></div>';
   }).join('');
   const concl=done?'<div class="fstep"><div class="fdot done" style="background:#EAF3DE;color:#27500A"><i class="ti ti-flag"></i></div><div class="fi2"><div class="fn">Concluído</div></div></div>':'';
-  const rcSel=j.etapa==='Criação'?'<div style="margin-bottom:14px;padding:10px 12px;background:var(--hover);border-radius:8px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Responsável pela Criação</div><select class="fi" onchange="setRC('+j.id+',this.value)"><option'+(j.rc==='Ana Luiza'?' selected':'')+'">Ana Luiza</option><option'+(j.rc==='Bruno'?' selected':'')+'">Bruno</option></select></div>':'';
-  const fluxoHTML='<div id="tab-fluxo" class="tab-content">'
-    +'<div class="sec-label">Fluxo de produção</div>'
-    +'<div style="margin-bottom:16px">'+steps+concl+'</div>'
-    +rcSel
-    +'<div class="sec-label">Status</div>'
-    +'<select class="fi" onchange="setSt('+j.id+',this.value)">'
-    +'<option'+(j.status==='No prazo'?' selected':'')+'>No prazo</option>'
-    +'<option'+(j.status==='Em atraso'?' selected':'')+'>Em atraso</option>'
-    +'<option'+(j.status==='Pendente'?' selected':'')+'>Pendente</option>'
-    +'</select></div>';
-  const tarefasCount=(j.tarefas||[]).filter(t=>!t.done).length;
-  const comsCount=(j.comentarios||[]).length;
-  const tabsHTML=`<div class="tabs" style="margin-bottom:14px">
-    <div class="tab on" onclick="panelTab(this,'briefing')">Briefing</div>
-    <div class="tab" onclick="panelTab(this,'tarefas')">Tarefas${tarefasCount?"<span style=\"font-size:10px;background:var(--aml);color:var(--am);border-radius:10px;padding:1px 5px;margin-left:3px\">"+tarefasCount+"</span>":""}</div>
-    <div class="tab" onclick="panelTab(this,'comentarios')">Comentários${comsCount?"<span style=\"font-size:10px;background:var(--bl);color:var(--b);border-radius:10px;padding:1px 5px;margin-left:3px\">"+comsCount+"</span>":""}</div>
-    <div class="tab" onclick="panelTab(this,'fluxo')">Fluxo</div>
-    <div class="tab" onclick="panelTab(this,'anexos')">Anexos</div>
-  </div>`;
-  const body=document.getElementById('p-body');
-  body.innerHTML=tabsHTML
-    +buildBriefingHTML(j.id)
-    +buildTarefasHTML(j.id).replace('id="tab-tarefas" class="tab-content"','id="tab-tarefas" class="tab-content" style="display:none"')
-    +buildComentariosHTML(j.id).replace('id="tab-comentarios" class="tab-content"','id="tab-comentarios" class="tab-content" style="display:none"')
-    +fluxoHTML.replace('id="tab-fluxo" class="tab-content"','id="tab-fluxo" class="tab-content" style="display:none"');
-  // Anexos tab
-  const equipeOpts=colabs.map(c=>'<option>'+c.nome+'</option>').join('');
-  const anexosHtml='<div id="tab-anexos" class="tab-content" style="display:none">'
-    +'<div id="drive-files-'+j.id+'"></div>'
-    +'<div class="drive-drop" id="drop-'+j.id+'" ondragover="event.preventDefault()" ondrop="handleDrop(event,'+j.id+')" onclick="triggerUpload('+j.id+')">'
-    +'<i class="ti ti-cloud-upload"></i>'
-    +'<div style="font-size:12px;font-weight:500">Arraste arquivos aqui ou clique para selecionar</div>'
-    +'<div style="font-size:11px;margin-top:3px">Qualquer tipo de arquivo</div></div>'
-    +'<input type="file" id="file-input-'+j.id+'" multiple style="display:none" onchange="uploadFiles(this.files,'+j.id+')">'
-    +'<div id="upload-progress-'+j.id+'"></div></div>';
-  body.innerHTML+=anexosHtml;
-  rDriveFiles(j.id);
-  // Build foot buttons
-  let foot='';
-  if(done){foot='<div style="text-align:center;font-size:12px;color:var(--muted)"><i class="ti ti-flag"></i> Job concluído</div>';}
-  else if(j.etapa==='Revisão'){foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-check"></i> Aprovar → Agendamento</button>'+' <button class="btn" onclick="reprovar('+j.id+',&dc;Criação&dc;)"><i class="ti ti-arrow-back"></i> Devolver à Criação</button>'+' <button class="btn" onclick="reprovar('+j.id+',&dc;Redação&dc;)"><i class="ti ti-arrow-back"></i> Devolver à Redação</button>';foot=foot.replace(/&dc;/g,"'");}
-  else if(j.etapa==='Agendamento'){foot='<button class="btn btng" onclick="concluir('+j.id+')"><i class="ti ti-flag"></i> Marcar como concluído</button>';}
-  else{const lbl=j.etapa==='Operações'?'Entregar para Redação':j.etapa==='Redação'?'Entregar para Criação':j.etapa==='Criação'?'Entregar para Revisão':'Avançar';foot='<button class="btn btng" onclick="avancar('+j.id+')"><i class="ti ti-arrow-right"></i> '+lbl+'</button>';}
-  document.getElementById('p-foot').innerHTML=foot;
+
+  const tarefas=j.tarefas||[];
+  const abertos=tarefas.filter(t=>!t.done).length;
+  const cargos=['Operações','Redação','Criação','Agendamento','Planejamento','Entregue'];
+  const cargoOpts=cargos.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+  const tarefasHTML=tarefas.map(t=>{
+    const ci=t.done?'done':'';
+    return '<div class="task-item" id="task-'+t.id+'">'
+      +'<div class="task-check '+ci+'" onclick="toggleTask('+j.id+','+t.id+')">'+(t.done?'<i class="ti ti-check" style="font-size:10px"></i>':'')+'</div>'
+      +'<div class="task-body"><div class="task-titulo '+ci+'">'+t.titulo+'</div>'
+      +'<div class="task-meta">'+(t.cargo?'<span><i class="ti ti-briefcase" style="font-size:10px"></i> '+t.cargo+'</span>':'')+(t.prazo?'<span><i class="ti ti-calendar" style="font-size:10px"></i> '+fd(t.prazo)+'</span>':'')+'</div></div>'
+      +'<button class="ibb" style="font-size:12px" onclick="deleteTask('+j.id+','+t.id+')"><i class="ti ti-trash"></i></button>'
+      +'</div>';
+  }).join('');
+
+  const prazoInt=j.prazoInterno||j.prazo||'';
+  const prazoFin=j.prazoFinal||j.prazo||'';
+
+  const left=document.getElementById('jm-left');
+  if(left) left.innerHTML=
+    // Briefing
+    '<div class="sec-label" style="margin-bottom:6px">Briefing</div>'
+    +'<textarea class="briefing-area" id="briefing-'+j.id+'" placeholder="Descreva o que precisa ser feito..." onblur="saveBriefing('+j.id+')" style="min-height:180px">'+(j.briefing||'')+'</textarea>'
+    +'<div style="font-size:10px;color:var(--muted);margin-top:3px;margin-bottom:18px">Salvo ao sair do campo</div>'
+    // Tarefas
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    +'<div class="sec-label" style="margin:0">Tarefas <span style="font-weight:400;text-transform:none;letter-spacing:0">('+abertos+' abertas de '+tarefas.length+')</span></div>'
+    +'<div class="prazo-dual" style="margin:0;padding:6px 10px"><div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazo('+j.id+','prazoInterno',this.value)"></div>'
+    +'<div class="prazo-item"><label>Prazo final</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazo('+j.id+','prazoFinal',this.value)"></div></div>'
+    +'</div>'
+    +'<div id="tarefas-list-'+j.id+'">'+(tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>')+'</div>'
+    +'<div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px">'
+    +'<input class="fi fi-sm" id="nt-titulo-'+j.id+'" placeholder="Nova tarefa..." style="width:100%;margin-bottom:6px">'
+    +'<div class="frow" style="margin-bottom:6px"><select class="fi fi-sm" id="nt-cargo-'+j.id+'"><option value="">— Área —</option>'+cargoOpts+'</select>'
+    +'<input class="fi fi-sm" type="date" id="nt-prazo-'+j.id+'"></div>'
+    +'<button class="btn btn-sm btng" onclick="addTarefa('+j.id+')"><i class="ti ti-plus"></i> Adicionar tarefa</button>'
+    +'</div>'
+    // Fluxo
+    +'<div style="margin-top:20px"><div class="sec-label" style="margin-bottom:8px">Fluxo de produção</div>'
+    +'<div>'+steps+concl+'</div>'
+    +(j.etapa==='Criação'?'<div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">Responsável pela Criação</div><select class="fi" onchange="setRC('+j.id+',this.value)"><option'+(j.rc==='Ana Luiza'?' selected':'')+'>Ana Luiza</option><option'+(j.rc==='Bruno'?' selected':'')+'>Bruno</option></select></div>':'')
+    +'<div style="margin-top:10px"><div class="sec-label" style="margin-bottom:6px">Status</div>'
+    +'<select class="fi" onchange="setSt('+j.id+',this.value)"><option'+(j.status==='No prazo'?' selected':'')+'>No prazo</option><option'+(j.status==='Em atraso'?' selected':'')+'>Em atraso</option><option'+(j.status==='Pendente'?' selected':'')+'>Pendente</option></select></div></div>';
+
+  // ---- RIGHT COLUMN ----  
+  const right=document.getElementById('jm-right');
+  if(right){
+    // Tabs for right column
+    const rightTabs='<div class="tabs" style="margin-bottom:14px">'
+      +'<div class="tab on" onclick="rightTab(this,\'rcomentarios\')">Comentários'
+      +((j.comentarios||[]).length?'<span style="font-size:10px;background:var(--bl);color:var(--b);border-radius:10px;padding:1px 5px;margin-left:3px">'+(j.comentarios||[]).length+'</span>':'')+'</div>'
+      +'<div class="tab" onclick="rightTab(this,\'ranexos\')">Anexos</div>'
+      +'</div>';
+    right.innerHTML=rightTabs
+      +buildComentariosHTML(j.id).replace('id="tab-comentarios"','id="rcomentarios"').replace('class="tab-content"','class="tab-content on"').replace('style="display:none"','')
+      +('<div id="ranexos" class="tab-content" style="display:none">'
+        +'<div id="drive-files-'+j.id+'"></div>'
+        +'<div class="drive-drop" id="drop-'+j.id+'" ondragover="event.preventDefault()" ondrop="handleDrop(event,'+j.id+')" onclick="triggerUpload('+j.id+')">'
+        +'<i class="ti ti-cloud-upload"></i>'
+        +'<div style="font-size:12px;font-weight:500">Arraste arquivos aqui</div></div>'
+        +'<input type="file" id="file-input-'+j.id+'" multiple style="display:none" onchange="uploadFiles(this.files,'+j.id+')">'
+        +'<div id="upload-progress-'+j.id+'"></div></div>');
+    rDriveFiles(j.id);
+    // Scroll comments to bottom
+    setTimeout(()=>{const list=document.getElementById('comentarios-list-'+j.id);if(list)list.scrollTop=list.scrollHeight;},100);
+  }
+}
+
+function rightTab(el,tabId){
+  const right=document.getElementById('jm-right');
+  if(!right)return;
+  right.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  right.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('on');t.style.display='none';});
+  const tc=document.getElementById(tabId);
+  if(tc){tc.classList.add('on');tc.style.display='block';}
+  if(tabId==='rcomentarios'&&activeJob){const list=document.getElementById('comentarios-list-'+activeJob);if(list)list.scrollTop=list.scrollHeight;}
+  if(tabId==='ranexos'&&activeJob)rDriveFiles(activeJob);
 }
 function setRC(id,v){const j=jobs.find(x=>x.id===id);if(!j)return;j.rc=v;const f=FLUXO.find(x=>x.e==='Criação');if(f){f.r=v;f.em=v==='Bruno'?'bruno@estudioi.com.br':'analuiza@estudioi.com.br';}rPanel(j);}
 function setSt(id,v){const j=jobs.find(x=>x.id===id);if(!j)return;j.status=v;rDash();renderJobs();}
@@ -1654,12 +1740,19 @@ function deleteTask(jobId,taskId){
 }
 
 function rPanelTarefas(jobId){
-  const tabEl=document.getElementById('tab-tarefas');
-  if(!tabEl)return;
-  const tmp=document.createElement('div');
-  tmp.innerHTML=buildTarefasHTML(jobId);
-  const newTab=tmp.querySelector('#tab-tarefas');
-  if(newTab)tabEl.innerHTML=newTab.innerHTML;
+  const j=jobs.find(x=>x.id===jobId);if(!j)return;
+  const listEl=document.getElementById('tarefas-list-'+jobId);
+  if(!listEl)return;
+  const tarefas=j.tarefas||[];
+  listEl.innerHTML=tarefas.map(t=>{
+    const ci=t.done?'done':'';
+    return '<div class="task-item" id="task-'+t.id+'">'
+      +'<div class="task-check '+ci+'" onclick="toggleTask('+jobId+','+t.id+')">'+(t.done?'<i class="ti ti-check" style="font-size:10px"></i>':'')+'</div>'
+      +'<div class="task-body"><div class="task-titulo '+ci+'">'+t.titulo+'</div>'
+      +'<div class="task-meta">'+(t.cargo?'<span><i class="ti ti-briefcase" style="font-size:10px"></i> '+t.cargo+'</span>':'')+(t.prazo?'<span><i class="ti ti-calendar" style="font-size:10px"></i> '+fd(t.prazo)+'</span>':'')+'</div></div>'
+      +'<button class="ibb" style="font-size:12px" onclick="deleteTask('+jobId+','+t.id+')"><i class="ti ti-trash"></i></button>'
+      +'</div>';
+  }).join('') || '<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>';
 }
 
 function buildBriefingHTML(jobId){
@@ -1765,8 +1858,16 @@ function sendComentario(jobId){
   if(!j.envolvidos)j.envolvidos=[];
   [...mencoes,PERFIS[currentUser].nome].forEach(n=>{if(!j.envolvidos.includes(n))j.envolvidos.push(n);});
   el.value='';
-  const tabEl=document.getElementById('tab-comentarios');
-  if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=buildComentariosHTML(jobId);const nt=tmp.querySelector('#tab-comentarios');if(nt)tabEl.innerHTML=nt.innerHTML;const list=document.getElementById('comentarios-list-'+jobId);if(list)list.scrollTop=list.scrollHeight;}
+  // Refresh right column comments
+  const rightEl=document.getElementById('rcomentarios');
+  if(rightEl){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=buildComentariosHTML(jobId).replace('id="tab-comentarios"','id="rcomentarios_tmp"');
+    const nt=tmp.querySelector('#rcomentarios_tmp');
+    if(nt)rightEl.innerHTML=nt.innerHTML;
+    const list=document.getElementById('comentarios-list-'+jobId);
+    if(list)list.scrollTop=list.scrollHeight;
+  }
   if(mencoes.length)toast('Notificado:\n'+mencoes.join(', '));
 }
 

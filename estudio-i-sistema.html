@@ -2050,15 +2050,14 @@ async function gerarBriefingIA(jobId){
   if(btn){btn.classList.add('loading');btn.innerHTML='<i class="ti ti-loader-2"></i> Gerando...';}
   if(resultEl){resultEl.innerHTML='<div class="ai-response" style="color:var(--muted)">A IA está gerando o briefing...</div>';}
   const tipoLabels={post_instagram:'Post para Instagram',post_linkedin:'Post para LinkedIn',post_youtube:'Vídeo para YouTube',email_marketing:'E-mail marketing',story:'Story (Instagram/Facebook)',campanha:'Campanha completa',artigo:'Artigo / Blog',identidade:'Identidade visual'};
-  const prompt='Você é um especialista em comunicação e marketing digital da agência Estúdio i Comunicação, de Belo Horizonte. Crie um briefing profissional e detalhado para a equipe de criação, com base nas informações abaixo.
+  const prompt=`Você é um especialista em comunicação e marketing digital da agência Estúdio i Comunicação, de Belo Horizonte. Crie um briefing profissional e detalhado para a equipe de criação, com base nas informações abaixo.
 
-Job: '+j.num+' — '+j.titulo+'
-Cliente: '+j.cli+'
-Projeto: '+(j.proj||j.cli)+'
-Tipo de conteúdo: '+tipoLabels[tipo]+'
-Objetivo: '+objetivo+'
-Público-alvo: '+publico+(extra?'
-Informações adicionais: '+extra:'')+'
+Job: ${j.num} — ${j.titulo}
+Cliente: ${j.cli}
+Projeto: ${j.proj||j.cli}
+Tipo de conteúdo: ${tipoLabels[tipo]}
+Objetivo: ${objetivo}
+Público-alvo: ${publico}${extra?'\nInformações adicionais: '+extra:''}
 
 O briefing deve conter:
 1. Contexto e objetivo
@@ -2070,16 +2069,12 @@ O briefing deve conter:
 7. Referências e inspirações (sugira)
 8. Pontos de atenção
 
-Seja direto, prático e específico. Escreva para uma equipe de criação que vai executar agora.';
+Seja direto, prático e específico. Escreva para uma equipe de criação que vai executar agora.`;
   try{
     const resp=await fetch('https://estudio-i-ai.estudioicom.workers.dev',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
+      body:JSON.stringify({prompt})
     });
     const data=await resp.json();
     const text=data.content?.[0]?.text||'Erro ao gerar briefing.';

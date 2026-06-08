@@ -596,7 +596,7 @@ const EC={Operações:['#E6F1FB','#185FA5'],Redação:['#E1F5EE','#0F6E56'],Cria
 // PERFIS
 const PERFIS={
   irene:  {nome:'Irene',       ini:'IR',cargo:'Gestora',   acesso:['dash','jobs','projetos','calendario','propostas','clientes','colaboradores','timesheet']},
-  jessica:{nome:'Jéssica',     ini:'JS',cargo:'Operações', acesso:['dash','jobs','projetos','calendario','clientes','timesheet']},
+  jessica:{nome:'Jéssica',     ini:'JS',cargo:'Operações', acesso:['dash','jobs','projetos','calendario','timesheet']},
   analuiza:{nome:'Ana Luiza',  ini:'AL',cargo:'Criação',   acesso:['dash','jobs','timesheet']},
   anaingrid:{nome:'Ana Ingrid',ini:'AI',cargo:'Redação',   acesso:['dash','jobs','timesheet']},
   bruno:  {nome:'Bruno',       ini:'BR',cargo:'Criação',   acesso:['dash','jobs','timesheet']},
@@ -911,8 +911,8 @@ function rPanel(j){
     // Tarefas
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
     +'<div class="sec-label" style="margin:0">Tarefas <span style="font-weight:400;text-transform:none;letter-spacing:0">('+abertos+' abertas de '+tarefas.length+')</span></div>'
-    +'<div class="prazo-dual" style="margin:0;padding:6px 10px"><div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazo('+j.id+','prazoInterno',this.value)"></div>'
-    +'<div class="prazo-item"><label>Prazo final</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazo('+j.id+','prazoFinal',this.value)"></div></div>'
+    +'<div class="prazo-dual" style="margin:0;padding:6px 10px"><div class="prazo-item"><label>Prazo interno</label><input type="date" value="'+prazoInt+'" onchange="setJobPrazoInt('+j.id+',this.value)"></div>'
+    +'<div class="prazo-item"><label>Prazo final</label><input type="date" value="'+prazoFin+'" onchange="setJobPrazoFin('+j.id+',this.value)"></div>'
     +'</div>'
     +'<div id="tarefas-list-'+j.id+'">'+(tarefasHTML||'<div style="font-size:12px;color:var(--muted);padding:8px 0">Nenhuma tarefa ainda.</div>')+'</div>'
     +'<div style="margin-top:10px;padding:10px 12px;background:var(--hover);border-radius:8px">'
@@ -1891,6 +1891,8 @@ function saveEnvolvido(jobId){
   if(tabEl){const tmp=document.createElement('div');tmp.innerHTML=buildComentariosHTML(jobId);const nt=tmp.querySelector('#tab-comentarios');if(nt)tabEl.innerHTML=nt.innerHTML;}
 }
 
+function setJobPrazoInt(jobId,val){setJobPrazo(jobId,'prazoInterno',val);}
+function setJobPrazoFin(jobId,val){setJobPrazo(jobId,'prazoFinal',val);}
 function setJobPrazo(jobId,field,val){
   const j=jobs.find(x=>x.id===jobId);if(!j)return;
   j[field]=val;

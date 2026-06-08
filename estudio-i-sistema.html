@@ -1427,6 +1427,8 @@ function rPropostas(){
         <span class="prop-valor">R$ ${fmtR(total)}</span>
         <span class="badge ${ps[p.status]||'bgray'}">${p.status}</span>
         <button class="btn btn-sm" onclick="openProposta(${p.id})"><i class="ti ti-eye"></i> Ver</button>
+        <button class="btn btn-sm" onclick="editProposta(${p.id})"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-sm" onclick="duplicarProposta(${p.id})"><i class="ti ti-copy"></i> Duplicar</button>
         <button class="btn btn-sm btng" onclick="imprimirProposta(${p.id})"><i class="ti ti-printer"></i> PDF</button>
       </div>
     </div>`;
@@ -2256,4 +2258,45 @@ window.addEventListener('load', ()=>{
 // rDash();rCal();
 </script>
 </body>
-</html>
+</html
+function openProposta(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  const total=p.itens.reduce((s,i)=>s+i.vunit*i.qtd,0);
+  const itensRows=p.itens.map(i=>'<tr><td style="padding:8px;border-bottom:.5px solid var(--border)">'+i.n+'</td><td style="padding:8px;border-bottom:.5px solid var(--border)"><strong>'+i.titulo+'</strong><br><span style="font-size:11px;color:var(--muted)">'+( i.desc||'')+'</span></td><td style="padding:8px;text-align:right;border-bottom:.5px solid var(--border)">R$ '+fmtR(i.vunit)+'</td><td style="padding:8px;text-align:center;border-bottom:.5px solid var(--border)">'+i.qtd+'</td><td style="padding:8px;text-align:right;border-bottom:.5px solid var(--border)"><strong>R$ '+fmtR(i.vunit*i.qtd)+'</strong></td></tr>').join('');
+  const ps={Aprovada:'bok','Em análise':'bpend',Enviada:'bpend',Rascunho:'bgray',Recusada:'blate'};
+  modal('<div class="mo mo-lg" style="max-width:700px"><div class="moh"><div><div class="mot">'+p.num+' — '+p.titulo+'</div><div style="font-size:12px;color:var(--muted)">'+p.cliente+' · '+fd(p.data)+'</div></div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div style="overflow-y:auto;max-height:60vh"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--hover)"><th style="padding:8px;text-align:left;font-size:11px">#</th><th style="padding:8px;text-align:left;font-size:11px">Descrição</th><th style="padding:8px;text-align:right;font-size:11px">Unit.</th><th style="padding:8px;text-align:center;font-size:11px">Qtd</th><th style="padding:8px;text-align:right;font-size:11px">Total</th></tr></thead><tbody>'+itensRows+'</tbody></table>'
+    +'<div style="display:flex;justify-content:flex-end;padding:14px 8px;border-top:2px solid var(--border)"><div style="font-size:18px;font-weight:700">Total: R$ '+fmtR(total)+'</div></div>'
+    +(p.obs?'<div style="padding:12px;background:var(--hover);border-radius:8px;font-size:12px"><strong>Obs:</strong> '+p.obs+'</div>':'')
+    +'</div><div class="mof"><button class="btn" onclick="closeM();editProposta('+id+')"><i class="ti ti-edit"></i> Editar</button><button class="btn" onclick="closeM();duplicarProposta('+id+')"><i class="ti ti-copy"></i> Duplicar</button><button class="btn btng" onclick="imprimirProposta('+id+')"><i class="ti ti-printer"></i> PDF</button></div></div>');
+}
+
+function editProposta(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  const statusOpts=['Rascunho','Em análise','Enviada','Aprovada','Recusada'].map(s=>'<option'+(s===p.status?' selected':'')+'>'+s+'</option>').join('');
+  const cliOpts=clientes.map(c=>'<option'+(c.nome===p.cliente?' selected':'')+'>'+c.nome+'</option>').join('');
+  modal('<div class="mo mo-lg" style="max-width:600px"><div class="moh"><div class="mot"><i class="ti ti-edit"></i> Editar proposta</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Título</label><input class="fi" id="ep-titulo" value="'+p.titulo+'"></div><div class="fg"><label class="fl">Cliente</label><select class="fi" id="ep-cli">'+cliOpts+'</select></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Data</label><input class="fi" type="date" id="ep-data" value="'+p.data+'"></div><div class="fg"><label class="fl">Status</label><select class="fi" id="ep-status">'+statusOpts+'</select></div></div>'
+    +'<div class="fg"><label class="fl">Obs</label><textarea class="fi" id="ep-obs" rows="2">'+(p.obs||'')+'</textarea></div>'
+    +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveEditProposta('+id+')"><i class="ti ti-check"></i> Salvar</button></div></div>');
+}
+
+function saveEditProposta(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  p.titulo=document.getElementById('ep-titulo').value||p.titulo;
+  p.cliente=document.getElementById('ep-cli').value;
+  p.data=document.getElementById('ep-data').value;
+  p.status=document.getElementById('ep-status').value;
+  p.obs=document.getElementById('ep-obs').value;
+  closeM();rPropostas();toast('Proposta atualizada!');
+}
+
+function duplicarProposta(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  const nova={...p,id:++nid,num:'P'+nid,data:HOJE_STR,status:'Rascunho',itens:p.itens.map(i=>({...i}))};
+  propostas.unshift(nova);
+  closeM();rPropostas();toast('Proposta duplicada: '+nova.num);
+}
+
+>

@@ -526,16 +526,23 @@ textarea.fi{resize:vertical;min-height:70px}
     <p>Acesso restrito — apenas a gestora pode ver propostas.</p>
   </div>
   <div id="prop-content">
-    <div class="shead">
-      <h2>Propostas</h2>
-      <div style="display:flex;align-items:center;gap:12px">
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer">
-          <input type="checkbox" id="toggle-arq" onchange="rPropostas()"> Mostrar arquivadas
-        </label>
-        <button class="btn btng" onclick="openNewProposta()"><i class="ti ti-plus"></i> Nova proposta</button>
+    <!-- LISTA DE PROPOSTAS -->
+    <div id="prop-lista-view">
+      <div class="shead">
+        <h2>Propostas</h2>
+        <div style="display:flex;align-items:center;gap:12px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="toggle-arq" onchange="rPropostas()"> Mostrar arquivadas
+          </label>
+          <button class="btn btng" onclick="openNewProposta()"><i class="ti ti-plus"></i> Nova proposta</button>
+        </div>
       </div>
+      <div id="prop-list"></div>
     </div>
-    <div id="prop-list"></div>
+    <!-- EDITOR DE PROPOSTA (tela cheia) -->
+    <div id="prop-editor-view" style="display:none">
+      <div id="prop-editor-inner"></div>
+    </div>
   </div>
 </div>
 
@@ -1552,142 +1559,276 @@ function calcTotal(p){
 function editarPropostaCompleta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   _propostaEditId=id;
-  _propostaEdit=JSON.parse(JSON.stringify(p)); // deep clone
-  renderEditorProposta();
+  _propostaEdit=JSON.parse(JSON.stringify(p));
+  // Mostrar tela do editor, esconder lista
+  document.getElementById('prop-lista-view').style.display='none';
+  document.getElementById('prop-editor-view').style.display='block';
+  renderEditorPropostaTela();
 }
 
-let _propostaEditId=null;
-let _propostaEdit=null;
+function fecharEditorProposta(){
+  document.getElementById('prop-lista-view').style.display='block';
+  document.getElementById('prop-editor-view').style.display='none';
+  _propostaEdit=null;_propostaEditId=null;
+}
 
-function renderEditorProposta(){
+function renderEditorPropostaTela(){
   const p=_propostaEdit;
   const statusOpts=['Rascunho','Em análise','Enviada','Aprovada','Recusada'].map(s=>`<option${s===p.status?' selected':''}>${s}</option>`).join('');
   const cliOpts=clientes.map(c=>`<option value="${c.nome}"${c.nome===p.cliente?' selected':''}>${c.nome}</option>`).join('');
-  const tipoOpts=['Mensal','Pontual'].map(t=>`<option${t===(p.tipo||'Mensal')?' selected':''}>${t}</option>`).join('');
   const formaOpts=['Pix','Boleto','Transferência','Cartão','Cheque','Dinheiro','Débito Automático','Depósito'].map(f=>`<option${f===(p.condForma||'Pix')?' selected':''}>${f}</option>`).join('');
 
   // Itens
   const itensHTML=(p.itens||[]).map((it,idx)=>`
-    <div class="prop-item-row" id="pitem-${idx}" style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;position:relative">
-      <button onclick="removerItemProposta(${idx})" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px"><i class="ti ti-trash"></i></button>
-      <div class="frow" style="margin-bottom:6px">
-        <div class="fg" style="flex:2"><label class="fl">Título do serviço</label><input class="fi" value="${it.titulo||''}" oninput="_propostaEdit.itens[${idx}].titulo=this.value"></div>
-        <div class="fg" style="flex:0 0 80px"><label class="fl">Qtd</label><input class="fi" type="number" min="1" value="${it.qtd||1}" oninput="_propostaEdit.itens[${idx}].qtd=+this.value;atualizarTotalEditor()"></div>
-        <div class="fg" style="flex:0 0 120px"><label class="fl">Valor unit. R$</label><input class="fi" type="number" min="0" step="0.01" value="${it.vunit||0}" oninput="_propostaEdit.itens[${idx}].vunit=+this.value;atualizarTotalEditor()"></div>
-        <div class="fg" style="flex:0 0 80px"><label class="fl">Desc. %</label><input class="fi" type="number" min="0" max="100" value="${it.desc_pct||''}" placeholder="0" oninput="_propostaEdit.itens[${idx}].desc_pct=+this.value||0;atualizarTotalEditor()"></div>
-        <div class="fg" style="flex:0 0 110px"><label class="fl">Subtotal</label><input class="fi" id="pitem-sub-${idx}" value="R$ ${fmtR(((it.vunit||0)*(it.qtd||1))*(1-(it.desc_pct||0)/100))}" readonly style="background:var(--hover);font-weight:600"></div>
-      </div>
-      <div class="fg"><label class="fl">Descrição do serviço</label><textarea class="fi" rows="3" placeholder="Detalhe o que está incluso neste serviço..." oninput="_propostaEdit.itens[${idx}].descricao=this.value">${it.descricao||''}</textarea></div>
-    </div>`).join('');
+    <tr id="pitem-row-${idx}" style="${it.oculto?'opacity:0.4;background:#f9f9f9':''}">
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;width:40px">${it.n}</td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border)">
+        <input class="fi" style="font-weight:600;margin-bottom:6px;font-size:13px" value="${it.titulo||''}" placeholder="Título do serviço" oninput="_propostaEdit.itens[${idx}].titulo=this.value">
+        <textarea class="fi" rows="3" style="font-size:11px;color:#555;resize:vertical" placeholder="Descrição detalhada do serviço..." oninput="_propostaEdit.itens[${idx}].descricao=this.value">${it.descricao||''}</textarea>
+      </td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:110px;text-align:right">
+        <input class="fi" type="number" min="0" step="0.01" value="${it.vunit||0}" style="text-align:right;font-size:13px" oninput="_propostaEdit.itens[${idx}].vunit=+this.value;calcSubtotal(${idx})">
+      </td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:70px;text-align:center">
+        <input class="fi" type="number" min="1" value="${it.qtd||1}" style="text-align:center;font-size:13px" oninput="_propostaEdit.itens[${idx}].qtd=+this.value;calcSubtotal(${idx})">
+      </td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:80px;text-align:center">
+        <input class="fi" type="number" min="0" max="100" value="${it.desc_pct||0}" placeholder="0" style="text-align:center;font-size:13px" oninput="_propostaEdit.itens[${idx}].desc_pct=+this.value||0;calcSubtotal(${idx})">
+      </td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:110px;text-align:right;font-weight:700;font-size:13px" id="pitem-sub-${idx}">
+        R$ ${fmtR(((it.vunit||0)*(it.qtd||1))*(1-(it.desc_pct||0)/100))}
+      </td>
+      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:70px;text-align:center">
+        <button title="${it.oculto?'Mostrar no PDF':'Ocultar no PDF'}" onclick="toggleOcultarItem(${idx})" style="background:none;border:none;cursor:pointer;color:${it.oculto?'var(--muted)':'var(--g)'};font-size:16px;margin-right:4px"><i class="ti ti-eye${it.oculto?'-off':''}"></i></button>
+        <button title="Remover item" onclick="removerItemProposta(${idx})" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join('');
 
   // Parcelas
   const parcHTML=(p.parcelas||[]).map((pc,idx)=>`
     <tr>
-      <td style="padding:4px"><input class="fi" type="date" value="${pc.venc||''}" oninput="_propostaEdit.parcelas[${idx}].venc=this.value" style="font-size:11px;padding:5px 8px"></td>
-      <td style="padding:4px"><input class="fi" type="number" value="${pc.valor||0}" oninput="_propostaEdit.parcelas[${idx}].valor=+this.value" style="font-size:11px;padding:5px 8px"></td>
-      <td style="padding:4px">
+      <td style="padding:5px 8px"><input class="fi" type="date" value="${pc.venc||''}" oninput="_propostaEdit.parcelas[${idx}].venc=this.value" style="font-size:11px;padding:5px 8px"></td>
+      <td style="padding:5px 8px"><input class="fi" type="number" value="${pc.valor||0}" oninput="_propostaEdit.parcelas[${idx}].valor=+this.value" style="font-size:11px;padding:5px 8px"></td>
+      <td style="padding:5px 8px">
         <select class="fi" oninput="_propostaEdit.parcelas[${idx}].forma=this.value" style="font-size:11px;padding:5px 8px">
           ${['Pix','Boleto','Transferência','Cartão','Cheque','Dinheiro','Débito Automático','Depósito'].map(f=>`<option${f===pc.forma?' selected':''}>${f}</option>`).join('')}
         </select>
       </td>
-      <td style="padding:4px"><button onclick="removerParcelaProposta(${idx})" style="background:none;border:none;cursor:pointer;color:var(--muted)"><i class="ti ti-trash"></i></button></td>
+      <td style="padding:5px 8px"><button onclick="removerParcelaProposta(${idx})" style="background:none;border:none;cursor:pointer;color:#c0392b"><i class="ti ti-trash"></i></button></td>
     </tr>`).join('');
 
-  modal(`<div class="mo mo-lg" style="max-width:780px;max-height:90vh">
-    <div class="moh">
-      <div class="mot"><i class="ti ti-edit"></i> Editar proposta — ${p.num}</div>
-      <button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button>
-    </div>
-    <div style="overflow-y:auto;max-height:calc(90vh - 120px);padding-right:4px">
+  const totalVisivel=calcTotalVisivel(p);
+  const totalGeral=calcTotal(p);
 
-      <div class="frow">
-        <div class="fg" style="flex:2"><label class="fl">Título da proposta</label><input class="fi" id="ep2-titulo" value="${p.titulo||''}" oninput="_propostaEdit.titulo=this.value"></div>
-        <div class="fg"><label class="fl">Status</label><select class="fi" id="ep2-status" onchange="_propostaEdit.status=this.value">${statusOpts}</select></div>
-        <div class="fg"><label class="fl">Tipo</label><select class="fi" onchange="_propostaEdit.tipo=this.value">${tipoOpts}</select></div>
+  document.getElementById('prop-editor-inner').innerHTML=`
+    <!-- TOPBAR DO EDITOR -->
+    <div style="position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:12px">
+      <button class="btn" onclick="fecharEditorProposta()"><i class="ti ti-arrow-left"></i> Voltar</button>
+      <div style="flex:1">
+        <span style="font-size:11px;color:var(--muted)">${p.num}</span>
+        <span style="font-size:15px;font-weight:700;margin-left:8px">${p.titulo||'Nova proposta'}</span>
       </div>
-      <div class="frow">
-        <div class="fg"><label class="fl">Data</label><input class="fi" type="date" value="${p.data||HOJE_STR}" oninput="_propostaEdit.data=this.value"></div>
-        <div class="fg"><label class="fl">Validade (dias)</label><input class="fi" type="number" value="${p.validade||15}" oninput="_propostaEdit.validade=+this.value"></div>
-        <div class="fg" style="flex:2"><label class="fl">Obs / Projeto</label><input class="fi" value="${p.obs||''}" oninput="_propostaEdit.obs=this.value"></div>
-      </div>
-
-      <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
-        <div class="sec-label">Cabeçalho do cliente</div>
-        <div class="fg" style="margin-bottom:8px">
-          <label class="fl">Cliente</label>
-          <div style="display:flex;gap:6px">
-            <select class="fi" style="flex:1" onchange="_propostaEdit.cliente=this.value;preencherCabecalhoEditor(this.value)">${cliOpts}</select>
-            <button onclick="novoClienteRapidoEditor()" style="background:var(--g);color:#fff;border:none;border-radius:8px;padding:0 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"><i class="ti ti-plus"></i> Novo</button>
-          </div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label class="fl">Razão social</label><input class="fi" id="ep2-razao" value="${p.cli_razao||''}" oninput="_propostaEdit.cli_razao=this.value"></div>
-          <div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ep2-cnpj" value="${p.cli_cnpj||''}" oninput="_propostaEdit.cli_cnpj=this.value"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label class="fl">Contato</label><input class="fi" id="ep2-contato" value="${p.cli_contato||''}" placeholder="Nome do contato" oninput="_propostaEdit.cli_contato=this.value"></div>
-          <div class="fg"><label class="fl">E-mail</label><input class="fi" id="ep2-email" value="${p.cli_email||''}" oninput="_propostaEdit.cli_email=this.value"></div>
-          <div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ep2-cidade" value="${p.cli_cidade||''}" oninput="_propostaEdit.cli_cidade=this.value"></div>
-        </div>
-        <div class="fg"><label class="fl">Endereço</label><input class="fi" id="ep2-endereco" value="${p.cli_endereco||''}" oninput="_propostaEdit.cli_endereco=this.value"></div>
-      </div>
-
-      <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="sec-label" style="margin:0">Itens da proposta</div>
-          <button onclick="adicionarItemProposta()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-plus"></i> Adicionar item</button>
-        </div>
-        <div id="prop-itens-editor">${itensHTML}</div>
-        <div style="display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:8px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-            <input type="checkbox" id="ep2-ocultar-total"${p.ocultarTotal?' checked':''} onchange="_propostaEdit.ocultarTotal=this.checked"> Ocultar valor total no PDF
-          </label>
-          <div style="font-size:16px;font-weight:700" id="ep2-total">Total: R$ ${fmtR(calcTotal(p))}</div>
-        </div>
-      </div>
-
-      <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="sec-label" style="margin:0">Condições de pagamento</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select class="fi" style="font-size:11px;padding:4px 8px;width:auto" onchange="_propostaEdit.condForma=this.value">${formaOpts}</select>
-            <button onclick="gerarParcelasAuto()" style="background:var(--hover);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer"><i class="ti ti-wand"></i> Gerar parcelas</button>
-            <button onclick="adicionarParcelaProposta()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-plus"></i> Parcela</button>
-          </div>
-        </div>
-        <div id="prop-parc-config" style="display:flex;gap:8px;align-items:center;margin-bottom:10px;background:var(--hover);padding:8px;border-radius:8px">
-          <div style="font-size:11px;color:var(--muted)">Gerar automático:</div>
-          <input class="fi" type="number" id="parc-n" value="${(p.parcelas||[]).length||1}" min="1" max="36" style="width:60px;font-size:11px;padding:4px 8px" placeholder="Nº">
-          <span style="font-size:11px">parcelas de</span>
-          <input class="fi" type="number" id="parc-val" value="${calcTotal(p)>0?fmtR(calcTotal(p)/Math.max((p.parcelas||[]).length,1)):''}" min="0" step="0.01" style="width:100px;font-size:11px;padding:4px 8px" placeholder="Valor">
-          <span style="font-size:11px">a partir de</span>
-          <input class="fi" type="date" id="parc-inicio" value="${HOJE_STR}" style="font-size:11px;padding:4px 8px">
-        </div>
-        <table style="width:100%;border-collapse:collapse" id="prop-parc-table">
-          <thead><tr style="background:var(--hover)">
-            <th style="padding:6px 8px;text-align:left;font-size:11px">Vencimento</th>
-            <th style="padding:6px 8px;text-align:left;font-size:11px">Valor R$</th>
-            <th style="padding:6px 8px;text-align:left;font-size:11px">Forma</th>
-            <th style="padding:6px 8px;width:32px"></th>
-          </tr></thead>
-          <tbody id="prop-parc-body">${parcHTML}</tbody>
-        </table>
-      </div>
-
-      <div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px">
-        <div class="sec-label">Considerações finais</div>
-        <textarea class="fi" rows="5" oninput="_propostaEdit.consid=this.value" style="font-size:11px">${p.consid||CONSID_DEFAULT}</textarea>
-      </div>
-
-    </div>
-    <div class="mof">
-      <button class="btn btn-danger" onclick="deletarProposta(${p.id})"><i class="ti ti-trash"></i> Excluir</button>
-      <button class="btn" onclick="arquivarProposta(${p.id})"><i class="ti ti-archive"></i> ${p.arquivada?'Reativar':'Arquivar'}</button>
-      <button class="btn" onclick="closeM()">Cancelar</button>
+      <select class="fi" style="width:auto;padding:5px 10px;font-size:12px" onchange="_propostaEdit.status=this.value">${statusOpts}</select>
+      <button class="btn btn-danger" onclick="deletarPropostaTela(${p.id})"><i class="ti ti-trash"></i></button>
+      <button class="btn" onclick="arquivarPropostaTela(${p.id})"><i class="ti ti-archive"></i> ${p.arquivada?'Reativar':'Arquivar'}</button>
       <button class="btn" onclick="imprimirProposta(${p.id})"><i class="ti ti-printer"></i> PDF</button>
       <button class="btn btng" onclick="salvarPropostaEditada()"><i class="ti ti-check"></i> Salvar</button>
     </div>
-  </div>`);
+
+    <div style="max-width:1100px;margin:0 auto;padding:24px">
+
+      <!-- CABEÇALHO -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:12px">Dados da proposta</div>
+        <div class="frow">
+          <div class="fg" style="flex:3"><label class="fl">Título</label><input class="fi" value="${p.titulo||''}" oninput="_propostaEdit.titulo=this.value;document.querySelector('#prop-editor-inner .prop-titulo-live').textContent=this.value" class="prop-titulo-live"></div>
+          <div class="fg"><label class="fl">Data</label><input class="fi" type="date" value="${p.data||HOJE_STR}" oninput="_propostaEdit.data=this.value"></div>
+          <div class="fg"><label class="fl">Validade (dias)</label><input class="fi" type="number" value="${p.validade||15}" oninput="_propostaEdit.validade=+this.value"></div>
+          <div class="fg"><label class="fl">Tipo</label>
+            <select class="fi" onchange="_propostaEdit.tipo=this.value">
+              <option${(p.tipo||'Mensal')==='Mensal'?' selected':''}>Mensal</option>
+              <option${p.tipo==='Pontual'?' selected':''}>Pontual</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Obs / Projeto</label><input class="fi" value="${p.obs||''}" placeholder="Ex: ABC Prosperity" oninput="_propostaEdit.obs=this.value"></div>
+      </div>
+
+      <!-- CLIENTE -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:12px">Cliente</div>
+        <div class="fg" style="margin-bottom:10px">
+          <label class="fl">Cliente</label>
+          <div style="display:flex;gap:8px">
+            <select class="fi" style="flex:1" onchange="_propostaEdit.cliente=this.value;preencherCabecalhoEditorTela(this.value)">${cliOpts}</select>
+            <button onclick="novoClienteRapidoTela()" style="background:var(--g);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap"><i class="ti ti-plus"></i> Novo cliente</button>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Razão social</label><input class="fi" id="te-razao" value="${p.cli_razao||''}" oninput="_propostaEdit.cli_razao=this.value"></div>
+          <div class="fg"><label class="fl">CNPJ</label><input class="fi" id="te-cnpj" value="${p.cli_cnpj||''}" oninput="_propostaEdit.cli_cnpj=this.value"></div>
+          <div class="fg"><label class="fl">Contato</label><input class="fi" id="te-contato" value="${p.cli_contato||''}" placeholder="Nome do contato" oninput="_propostaEdit.cli_contato=this.value"></div>
+        </div>
+        <div class="frow">
+          <div class="fg"><label class="fl">E-mail</label><input class="fi" id="te-email" value="${p.cli_email||''}" oninput="_propostaEdit.cli_email=this.value"></div>
+          <div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="te-cidade" value="${p.cli_cidade||''}" oninput="_propostaEdit.cli_cidade=this.value"></div>
+          <div class="fg" style="flex:2"><label class="fl">Endereço</label><input class="fi" id="te-endereco" value="${p.cli_endereco||''}" oninput="_propostaEdit.cli_endereco=this.value"></div>
+        </div>
+      </div>
+
+      <!-- ITENS -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Itens da proposta</div>
+          <button onclick="adicionarItemProposta()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-plus"></i> Adicionar item</button>
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:var(--hover)">
+              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:40px">Nº</th>
+              <th style="padding:8px;font-size:11px;text-align:left;color:var(--muted)">Item</th>
+              <th style="padding:8px;font-size:11px;text-align:right;color:var(--muted);width:110px">Valor unit.</th>
+              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:70px">Quantidade</th>
+              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:80px">Desconto</th>
+              <th style="padding:8px;font-size:11px;text-align:right;color:var(--muted);width:110px">Subtotal</th>
+              <th style="padding:8px;width:70px"></th>
+            </tr>
+          </thead>
+          <tbody id="prop-itens-tbody">${itensHTML}</tbody>
+        </table>
+        <div style="padding:12px 20px;border-top:2px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <button onclick="adicionarItemProposta()" style="background:none;border:none;color:var(--g);font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-plus"></i> Adicionar</button>
+          <div style="display:flex;align-items:center;gap:20px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="te-ocultar-total"${p.ocultarTotal?' checked':''} onchange="_propostaEdit.ocultarTotal=this.checked"> Ocultar valor total no PDF
+            </label>
+            <div style="font-size:11px;color:var(--muted)">Valor total:</div>
+            <div style="font-size:20px;font-weight:700" id="te-total-display">R$ ${fmtR(totalVisivel)}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARCELAS -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Condições de pagamento</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select class="fi" style="font-size:11px;padding:5px 8px;width:auto" onchange="_propostaEdit.condForma=this.value">${formaOpts}</select>
+            <input class="fi" type="number" id="parc-n" value="${(p.parcelas||[]).length||1}" min="1" max="60" style="width:55px;font-size:11px;padding:5px 8px" placeholder="N">
+            <span style="font-size:11px;color:var(--muted)">× R$</span>
+            <input class="fi" type="number" id="parc-val" value="${totalVisivel>0?Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100:''}" step="0.01" style="width:90px;font-size:11px;padding:5px 8px" placeholder="Valor">
+            <span style="font-size:11px;color:var(--muted)">a partir de</span>
+            <input class="fi" type="date" id="parc-inicio" value="${HOJE_STR}" style="font-size:11px;padding:5px 8px">
+            <button onclick="gerarParcelasAuto()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-wand"></i> Gerar</button>
+            <button onclick="adicionarParcelaProposta()" style="background:var(--hover);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer"><i class="ti ti-plus"></i> Manual</button>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:var(--hover)">
+            <th style="padding:7px 12px;font-size:11px;text-align:left;color:var(--muted)">Vencimento</th>
+            <th style="padding:7px 12px;font-size:11px;text-align:left;color:var(--muted)">Valor R$</th>
+            <th style="padding:7px 12px;font-size:11px;text-align:left;color:var(--muted)">Forma de Pagamento</th>
+            <th style="width:40px"></th>
+          </tr></thead>
+          <tbody id="prop-parc-tbody">${parcHTML}</tbody>
+        </table>
+        ${!(p.parcelas||[]).length?'<div style="padding:16px 20px;font-size:12px;color:var(--muted)">Nenhuma parcela. Use o gerador acima ou adicione manualmente.</div>':''}
+      </div>
+
+      <!-- CONSIDERAÇÕES -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:24px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:10px">Considerações finais</div>
+        <textarea class="fi" rows="6" oninput="_propostaEdit.consid=this.value" style="font-size:12px;resize:vertical">${p.consid||CONSID_DEFAULT}</textarea>
+      </div>
+
+    </div>`;
+}
+
+function calcTotalVisivel(p){
+  return (p.itens||[]).filter(i=>!i.oculto).reduce((s,i)=>{
+    const sub=(i.vunit||0)*(i.qtd||1);
+    const desc=i.desc_pct?sub*(i.desc_pct/100):0;
+    return s+sub-desc;
+  },0);
+}
+
+function calcSubtotal(idx){
+  if(!_propostaEdit)return;
+  const it=_propostaEdit.itens[idx];
+  const sub=(it.vunit||0)*(it.qtd||1);
+  const desc=it.desc_pct?sub*(it.desc_pct/100):0;
+  const tot=sub-desc;
+  const el=document.getElementById('pitem-sub-'+idx);
+  if(el)el.textContent='R$ '+fmtR(tot);
+  // Atualizar total geral
+  const telTotal=document.getElementById('te-total-display');
+  if(telTotal)telTotal.textContent='R$ '+fmtR(calcTotalVisivel(_propostaEdit));
+}
+
+function toggleOcultarItem(idx){
+  if(!_propostaEdit)return;
+  _propostaEdit.itens[idx].oculto=!_propostaEdit.itens[idx].oculto;
+  renderEditorPropostaTela();
+}
+
+function preencherCabecalhoEditorTela(nomeCliente){
+  const c=clientes.find(x=>x.nome===nomeCliente);
+  if(!c)return;
+  _propostaEdit.cli_razao=c.razao||c.nome||'';
+  _propostaEdit.cli_cnpj=c.cnpj||'';
+  _propostaEdit.cli_email=c.email||'';
+  _propostaEdit.cli_cidade=c.cidade||'';
+  _propostaEdit.cli_endereco=c.endereco||'';
+  _propostaEdit.cli_contato='';
+  const f=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  f('te-razao',_propostaEdit.cli_razao);f('te-cnpj',_propostaEdit.cli_cnpj);
+  f('te-email',_propostaEdit.cli_email);f('te-cidade',_propostaEdit.cli_cidade);
+  f('te-endereco',_propostaEdit.cli_endereco);f('te-contato','');
+}
+
+function novoClienteRapidoTela(){
+  modal('<div class="mo" style="max-width:480px"><div class="moh"><div class="mot"><i class="ti ti-building"></i> Novo cliente</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Nome / apelido</label><input class="fi" id="ncrt-nome" placeholder="Ex: ABC Prosperity"></div><div class="fg"><label class="fl">Razão social</label><input class="fi" id="ncrt-razao"></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ncrt-cnpj"></div><div class="fg"><label class="fl">E-mail</label><input class="fi" id="ncrt-email"></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ncrt-cidade"></div><div class="fg"><label class="fl">Telefone</label><input class="fi" id="ncrt-tel"></div></div>'
+    +'<div class="fg"><label class="fl">Endereço</label><input class="fi" id="ncrt-end"></div>'
+    +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="salvarClienteRapidoTela()"><i class="ti ti-check"></i> Criar e selecionar</button></div></div>');
+}
+
+function salvarClienteRapidoTela(){
+  const nome=document.getElementById('ncrt-nome').value.trim();
+  if(!nome){toast('Informe o nome do cliente.');return;}
+  const novo={id:++nid,num:clientes.length+1,nome,
+    razao:document.getElementById('ncrt-razao').value||nome,
+    cnpj:document.getElementById('ncrt-cnpj').value,
+    email:document.getElementById('ncrt-email').value,
+    cidade:document.getElementById('ncrt-cidade').value,
+    tel:document.getElementById('ncrt-tel').value,
+    endereco:document.getElementById('ncrt-end').value,
+    contatos:[],star:false};
+  clientes.push(novo);
+  _propostaEdit.cliente=novo.nome;
+  _propostaEdit.cli_razao=novo.razao;
+  _propostaEdit.cli_cnpj=novo.cnpj;
+  _propostaEdit.cli_email=novo.email;
+  _propostaEdit.cli_cidade=novo.cidade;
+  _propostaEdit.cli_endereco=novo.endereco;
+  closeM();
+  renderEditorPropostaTela();
+  toast('Cliente '+novo.nome+' criado!');
+}
+
+function deletarPropostaTela(id){
+  if(!confirm('Excluir esta proposta permanentemente?'))return;
+  propostas=propostas.filter(x=>x.id!==id);
+  fecharEditorProposta();rPropostas();toast('Proposta excluída.');
+}
+
+function arquivarPropostaTela(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  p.arquivada=!p.arquivada;
+  if(_propostaEdit)_propostaEdit.arquivada=p.arquivada;
+  fecharEditorProposta();rPropostas();toast(p.arquivada?'Proposta arquivada.':'Proposta reativada.');
 }
 
 function preencherCabecalhoEditor(nomeCliente){
@@ -1713,14 +1854,14 @@ function adicionarItemProposta(){
   const n=(_propostaEdit.itens||[]).length+1;
   _propostaEdit.itens=_propostaEdit.itens||[];
   _propostaEdit.itens.push({n,titulo:'',descricao:'',vunit:0,qtd:1,desc_pct:0});
-  renderEditorProposta();
+  renderEditorPropostaTela();
 }
 
 function removerItemProposta(idx){
   if(!_propostaEdit)return;
   _propostaEdit.itens.splice(idx,1);
   _propostaEdit.itens.forEach((it,i)=>it.n=i+1);
-  renderEditorProposta();
+  renderEditorPropostaTela();
 }
 
 function atualizarTotalEditor(){
@@ -1741,13 +1882,13 @@ function adicionarParcelaProposta(){
   if(!_propostaEdit)return;
   _propostaEdit.parcelas=_propostaEdit.parcelas||[];
   _propostaEdit.parcelas.push({venc:HOJE_STR,valor:0,forma:_propostaEdit.condForma||'Pix'});
-  renderEditorProposta();
+  renderEditorPropostaTela();
 }
 
 function removerParcelaProposta(idx){
   if(!_propostaEdit)return;
   _propostaEdit.parcelas.splice(idx,1);
-  renderEditorProposta();
+  renderEditorPropostaTela();
 }
 
 function gerarParcelasAuto(){
@@ -1766,7 +1907,7 @@ function gerarParcelasAuto(){
     parcelas.push({venc:`${y}-${m}-${day}`,valor:val,forma});
   }
   _propostaEdit.parcelas=parcelas;
-  renderEditorProposta();
+  renderEditorPropostaTela();
 }
 
 function salvarPropostaEditada(){
@@ -1781,12 +1922,12 @@ function salvarPropostaEditada(){
 function novoClienteRapidoEditor(){
   // Salvar estado do editor antes
   const snap=JSON.parse(JSON.stringify(_propostaEdit));
-  modal('<div class="mo" style="max-width:480px"><div class="moh"><div class="mot"><i class="ti ti-building"></i> Novo cliente</div><button class="ibb" onclick="_propostaEdit='+JSON.stringify(snap)+';renderEditorProposta()"><i class="ti ti-x"></i></button></div>'
+  modal('<div class="mo" style="max-width:480px"><div class="moh"><div class="mot"><i class="ti ti-building"></i> Novo cliente</div><button class="ibb" onclick="_propostaEdit='+JSON.stringify(snap)+';renderEditorPropostaTela()"><i class="ti ti-x"></i></button></div>'
     +'<div class="frow"><div class="fg"><label class="fl">Nome / apelido</label><input class="fi" id="ncr2-nome" placeholder="Ex: ABC Prosperity"></div><div class="fg"><label class="fl">Razão social</label><input class="fi" id="ncr2-razao"></div></div>'
     +'<div class="frow"><div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ncr2-cnpj" placeholder="00.000.000/0001-00"></div><div class="fg"><label class="fl">E-mail</label><input class="fi" id="ncr2-email"></div></div>'
     +'<div class="frow"><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ncr2-cidade"></div><div class="fg"><label class="fl">Telefone</label><input class="fi" id="ncr2-tel"></div></div>'
     +'<div class="fg"><label class="fl">Endereço</label><input class="fi" id="ncr2-end"></div>'
-    +'<div class="mof"><button class="btn" onclick="_propostaEdit='+JSON.stringify(snap)+';renderEditorProposta()">Voltar</button><button class="btn btng" onclick="salvarClienteRapidoEditor()"><i class="ti ti-check"></i> Criar e selecionar</button></div></div>');
+    +'<div class="mof"><button class="btn" onclick="_propostaEdit='+JSON.stringify(snap)+';renderEditorPropostaTela()">Voltar</button><button class="btn btng" onclick="salvarClienteRapidoEditor()"><i class="ti ti-check"></i> Criar e selecionar</button></div></div>');
 }
 
 function salvarClienteRapidoEditor(){
@@ -1807,7 +1948,7 @@ function salvarClienteRapidoEditor(){
   _propostaEdit.cli_email=novo.email;
   _propostaEdit.cli_cidade=novo.cidade;
   _propostaEdit.cli_endereco=novo.endereco;
-  renderEditorProposta();
+  renderEditorPropostaTela();
   toast('Cliente '+novo.nome+' criado!');
 }
 
@@ -1816,7 +1957,7 @@ function imprimirProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const total=calcTotal(p);
   const hasDesc=(p.itens||[]).some(i=>i.desc_pct);
-  const itensHTML=(p.itens||[]).map(it=>{
+  const itensHTML=(p.itens||[]).filter(it=>!it.oculto).map(it=>{
     const sub=(it.vunit||0)*(it.qtd||1);
     const descVal=it.desc_pct?sub*(it.desc_pct/100):0;
     const tot=sub-descVal;
@@ -2005,9 +2146,8 @@ function saveNewProposta(){
   };
   propostas.unshift(nova);
   closeM();
-  // Abrir editor completo imediatamente
-  setTimeout(()=>editarPropostaCompleta(nova.id),100);
-  toast('Proposta '+nova.num+' criada! Complete os itens e parcelas.');
+  setTimeout(()=>editarPropostaCompleta(nova.id),150);
+  toast('Proposta '+nova.num+' criada!');
 }
 
 // ---- AÇÕES ----

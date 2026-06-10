@@ -528,7 +528,12 @@ textarea.fi{resize:vertical;min-height:70px}
   <div id="prop-content">
     <div class="shead">
       <h2>Propostas</h2>
-      <button class="btn btng" onclick="openNewProposta()"><i class="ti ti-plus"></i> Nova proposta</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer">
+          <input type="checkbox" id="toggle-arq" onchange="rPropostas()"> Mostrar arquivadas
+        </label>
+        <button class="btn btng" onclick="openNewProposta()"><i class="ti ti-plus"></i> Nova proposta</button>
+      </div>
     </div>
     <div id="prop-list"></div>
   </div>
@@ -1438,22 +1443,53 @@ function openProposta(id){
   const total=p.itens.reduce((s,i)=>s+i.vunit*i.qtd,0);
   const itensRows=p.itens.map(i=>'<tr><td style="padding:8px;border-bottom:.5px solid var(--border)">'+i.n+'</td><td style="padding:8px;border-bottom:.5px solid var(--border)"><strong>'+i.titulo+'</strong><br><span style="font-size:11px;color:var(--muted)">'+( i.desc||'')+'</span></td><td style="padding:8px;text-align:right;border-bottom:.5px solid var(--border)">R$ '+fmtR(i.vunit)+'</td><td style="padding:8px;text-align:center;border-bottom:.5px solid var(--border)">'+i.qtd+'</td><td style="padding:8px;text-align:right;border-bottom:.5px solid var(--border)"><strong>R$ '+fmtR(i.vunit*i.qtd)+'</strong></td></tr>').join('');
   const ps={Aprovada:'bok','Em análise':'bpend',Enviada:'bpend',Rascunho:'bgray',Recusada:'blate'};
+  // Cabeçalho do cliente
+  const cabLines=[];
+  if(p.cli_razao||p.cliente) cabLines.push('<strong>'+(p.cli_razao||p.cliente)+'</strong>');
+  if(p.cli_cnpj) cabLines.push('CNPJ: '+p.cli_cnpj);
+  if(p.cli_endereco) cabLines.push(p.cli_endereco);
+  if(p.cli_cidade) cabLines.push(p.cli_cidade);
+  if(p.cli_email) cabLines.push(p.cli_email);
+  const cabHtml=cabLines.length
+    ?'<div style="padding:12px 16px;background:var(--hover);border-radius:8px;font-size:12px;line-height:1.8;margin-bottom:12px">'+cabLines.join('<br>')+'</div>'
+    :'';
   modal('<div class="mo mo-lg" style="max-width:700px"><div class="moh"><div><div class="mot">'+p.num+' — '+p.titulo+'</div><div style="font-size:12px;color:var(--muted)">'+p.cliente+' · '+fd(p.data)+'</div></div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
-    +'<div style="overflow-y:auto;max-height:60vh"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--hover)"><th style="padding:8px;text-align:left;font-size:11px">#</th><th style="padding:8px;text-align:left;font-size:11px">Descrição</th><th style="padding:8px;text-align:right;font-size:11px">Unit.</th><th style="padding:8px;text-align:center;font-size:11px">Qtd</th><th style="padding:8px;text-align:right;font-size:11px">Total</th></tr></thead><tbody>'+itensRows+'</tbody></table>'
+    +'<div style="overflow-y:auto;max-height:60vh">'
+    +cabHtml
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:var(--hover)"><th style="padding:8px;text-align:left;font-size:11px">#</th><th style="padding:8px;text-align:left;font-size:11px">Descrição</th><th style="padding:8px;text-align:right;font-size:11px">Unit.</th><th style="padding:8px;text-align:center;font-size:11px">Qtd</th><th style="padding:8px;text-align:right;font-size:11px">Total</th></tr></thead><tbody>'+itensRows+'</tbody></table>'
     +'<div style="display:flex;justify-content:flex-end;padding:14px 8px;border-top:2px solid var(--border)"><div style="font-size:18px;font-weight:700">Total: R$ '+fmtR(total)+'</div></div>'
     +(p.obs?'<div style="padding:12px;background:var(--hover);border-radius:8px;font-size:12px"><strong>Obs:</strong> '+p.obs+'</div>':'')
-    +'</div><div class="mof"><button class="btn" onclick="closeM();editProposta('+id+')"><i class="ti ti-edit"></i> Editar</button><button class="btn" onclick="closeM();duplicarProposta('+id+')"><i class="ti ti-copy"></i> Duplicar</button><button class="btn btng" onclick="imprimirProposta('+id+')"><i class="ti ti-printer"></i> PDF</button></div></div>');
+    +'</div><div class="mof"><button class="btn btn-danger" onclick="deletarProposta('+id+')"><i class="ti ti-trash"></i> Excluir</button><button class="btn" onclick="arquivarProposta('+id+')"><i class="ti ti-archive"></i> '+(p.arquivada?'Reativar':'Arquivar')+'</button><button class="btn" onclick="closeM();editProposta('+id+')"><i class="ti ti-edit"></i> Editar</button><button class="btn" onclick="closeM();duplicarProposta('+id+')"><i class="ti ti-copy"></i> Duplicar</button><button class="btn btng" onclick="imprimirProposta('+id+')"><i class="ti ti-printer"></i> PDF</button></div></div>');
 }
 
 function editProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const statusOpts=['Rascunho','Em análise','Enviada','Aprovada','Recusada'].map(s=>'<option'+(s===p.status?' selected':'')+'>'+s+'</option>').join('');
-  const cliOpts=clientes.map(c=>'<option'+(c.nome===p.cliente?' selected':'')+'>'+c.nome+'</option>').join('');
-  modal('<div class="mo mo-lg" style="max-width:600px"><div class="moh"><div class="mot"><i class="ti ti-edit"></i> Editar proposta</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
-    +'<div class="frow"><div class="fg"><label class="fl">Título</label><input class="fi" id="ep-titulo" value="'+p.titulo+'"></div><div class="fg"><label class="fl">Cliente</label><select class="fi" id="ep-cli">'+cliOpts+'</select></div></div>'
-    +'<div class="frow"><div class="fg"><label class="fl">Data</label><input class="fi" type="date" id="ep-data" value="'+p.data+'"></div><div class="fg"><label class="fl">Status</label><select class="fi" id="ep-status">'+statusOpts+'</select></div></div>'
-    +'<div class="fg"><label class="fl">Obs</label><textarea class="fi" id="ep-obs" rows="2">'+(p.obs||'')+'</textarea></div>'
-    +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveEditProposta('+id+')"><i class="ti ti-check"></i> Salvar</button></div></div>');
+  const cliOpts=clientes.map(c=>'<option'+(c.nome===p.cliente?' selected':'')+' value="'+c.nome+'">'+c.nome+'</option>').join('');
+  // Preencher campos do cliente selecionado
+  const cliAtual=clientes.find(c=>c.nome===p.cliente)||{};
+  modal('<div class="mo mo-lg" style="max-width:660px"><div class="moh"><div class="mot"><i class="ti ti-edit"></i> Editar proposta</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Título</label><input class="fi" id="ep-titulo" value="'+p.titulo+'"></div><div class="fg"><label class="fl">Status</label><select class="fi" id="ep-status">'+statusOpts+'</select></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Data</label><input class="fi" type="date" id="ep-data" value="'+p.data+'"></div><div class="fg"><label class="fl">Obs</label><textarea class="fi" id="ep-obs" rows="1" style="min-height:38px">'+(p.obs||'')+'</textarea></div></div>'
+    +'<div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Cabeçalho do cliente</div>'
+    +'<div class="fg" style="margin-bottom:8px"><label class="fl">Cliente</label><select class="fi" id="ep-cli" onchange="preencherCabecalhoProposta()">'+cliOpts+'</select></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Razão social</label><input class="fi" id="ep-razao" value="'+(p.cli_razao||cliAtual.razao||cliAtual.nome||'')+'"></div><div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ep-cnpj" value="'+(p.cli_cnpj||cliAtual.cnpj||'')+'"></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">E-mail</label><input class="fi" id="ep-email" value="'+(p.cli_email||cliAtual.email||'')+'"></div><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ep-cidade" value="'+(p.cli_cidade||cliAtual.cidade||'')+'"></div></div>'
+    +'<div class="fg"><label class="fl">Endereço</label><input class="fi" id="ep-endereco" value="'+(p.cli_endereco||cliAtual.endereco||'')+'"></div>'
+    +'</div>'
+    +'<div class="mof"><button class="btn btn-danger" onclick="deletarProposta('+id+')"><i class="ti ti-trash"></i> Excluir</button><button class="btn" onclick="arquivarProposta('+id+')"><i class="ti ti-archive"></i> Arquivar</button><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveEditProposta('+id+')"><i class="ti ti-check"></i> Salvar</button></div></div>');
+}
+
+function preencherCabecalhoProposta(){
+  const sel=document.getElementById('ep-cli');
+  if(!sel)return;
+  const c=clientes.find(x=>x.nome===sel.value);
+  if(!c)return;
+  document.getElementById('ep-razao').value=c.razao||c.nome||'';
+  document.getElementById('ep-cnpj').value=c.cnpj||'';
+  document.getElementById('ep-email').value=c.email||'';
+  document.getElementById('ep-cidade').value=c.cidade||'';
+  document.getElementById('ep-endereco').value=c.endereco||'';
 }
 
 function saveEditProposta(id){
@@ -1463,7 +1499,24 @@ function saveEditProposta(id){
   p.data=document.getElementById('ep-data').value;
   p.status=document.getElementById('ep-status').value;
   p.obs=document.getElementById('ep-obs').value;
+  p.cli_razao=document.getElementById('ep-razao').value;
+  p.cli_cnpj=document.getElementById('ep-cnpj').value;
+  p.cli_email=document.getElementById('ep-email').value;
+  p.cli_cidade=document.getElementById('ep-cidade').value;
+  p.cli_endereco=document.getElementById('ep-endereco').value;
   closeM();rPropostas();toast('Proposta atualizada!');
+}
+
+function deletarProposta(id){
+  if(!confirm('Excluir esta proposta permanentemente?'))return;
+  propostas=propostas.filter(x=>x.id!==id);
+  closeM();rPropostas();toast('Proposta excluída.');
+}
+
+function arquivarProposta(id){
+  const p=propostas.find(x=>x.id===id);if(!p)return;
+  p.arquivada=!p.arquivada;
+  closeM();rPropostas();toast(p.arquivada?'Proposta arquivada.':'Proposta reativada.');
 }
 
 function duplicarProposta(id){
@@ -1476,11 +1529,13 @@ function duplicarProposta(id){
 
 function rPropostas(){
   const ps={Aprovada:'bok','Em análise':'bpend',Enviada:'bpend',Rascunho:'bgray',Recusada:'blate'};
-  document.getElementById('prop-list').innerHTML=propostas.map(p=>{
+  const mostrarArq=document.getElementById('toggle-arq')?.checked;
+  const lista=propostas.filter(p=>mostrarArq?true:!p.arquivada);
+  document.getElementById('prop-list').innerHTML=lista.map(p=>{
     const total=p.itens.reduce((s,i)=>s+i.vunit*i.qtd,0);
-    return `<div class="prop-card">
+    return `<div class="prop-card" style="${p.arquivada?'opacity:0.5':''}">
       <span class="prop-num">${p.num}</span>
-      <div class="prop-info"><div class="prop-title">${p.titulo}</div><div class="prop-cli">${p.cliente} · ${fd(p.data)}</div></div>
+      <div class="prop-info"><div class="prop-title">${p.titulo}${p.arquivada?' <span style="font-size:10px;background:var(--hover);color:var(--muted);padding:1px 6px;border-radius:8px">arquivada</span>':''}</div><div class="prop-cli">${p.cliente} · ${fd(p.data)}</div></div>
       <div style="display:flex;align-items:center;gap:10px">
         <span class="prop-valor">R$ ${fmtR(total)}</span>
         <span class="badge ${ps[p.status]||'bgray'}">${p.status}</span>

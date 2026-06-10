@@ -540,7 +540,7 @@ textarea.fi{resize:vertical;min-height:70px}
       <div id="prop-list"></div>
     </div>
     <!-- EDITOR DE PROPOSTA (tela cheia) -->
-    <div id="prop-editor-view" style="display:none">
+    <div id="prop-editor-view" style="display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto">
       <div id="prop-editor-inner"></div>
     </div>
   </div>
@@ -1580,27 +1580,27 @@ function renderEditorPropostaTela(){
 
   // Itens
   const itensHTML=(p.itens||[]).map((it,idx)=>`
-    <tr id="pitem-row-${idx}" style="${it.oculto?'opacity:0.4;background:#f9f9f9':''}">
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;width:40px">${it.n}</td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border)">
-        <input class="fi" style="font-weight:600;margin-bottom:6px;font-size:13px" value="${it.titulo||''}" placeholder="Título do serviço" oninput="_propostaEdit.itens[${idx}].titulo=this.value">
-        <textarea class="fi" rows="3" style="font-size:11px;color:#555;resize:vertical" placeholder="Descrição detalhada do serviço..." oninput="_propostaEdit.itens[${idx}].descricao=this.value">${it.descricao||''}</textarea>
+    <tr id="pitem-row-${idx}" style="${it.oculto?'opacity:0.45;background:var(--hover)':''}">
+      <td style="padding:12px 6px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;vertical-align:top">${it.n}</td>
+      <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top">
+        <input class="fi" value="${it.titulo||''}" placeholder="Título do serviço" oninput="_propostaEdit.itens[${idx}].titulo=this.value" style="font-weight:600;font-size:13px;margin-bottom:6px;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:2px 4px;background:transparent">
+        <textarea class="fi" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
       </td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:110px;text-align:right">
-        <input class="fi" type="number" min="0" step="0.01" value="${it.vunit||0}" style="text-align:right;font-size:13px" oninput="_propostaEdit.itens[${idx}].vunit=+this.value;calcSubtotal(${idx})">
+      <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right">
+        <input class="fi" type="number" min="0" step="0.01" value="${it.vunit||0}" oninput="_propostaEdit.itens[${idx}].vunit=+this.value;calcSubtotal(${idx})" style="text-align:right;font-size:13px">
       </td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:70px;text-align:center">
-        <input class="fi" type="number" min="1" value="${it.qtd||1}" style="text-align:center;font-size:13px" oninput="_propostaEdit.itens[${idx}].qtd=+this.value;calcSubtotal(${idx})">
+      <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:center">
+        <input class="fi" type="number" min="1" value="${it.qtd||1}" oninput="_propostaEdit.itens[${idx}].qtd=+this.value;calcSubtotal(${idx})" style="text-align:center;font-size:13px">
       </td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:80px;text-align:center">
-        <input class="fi" type="number" min="0" max="100" value="${it.desc_pct||0}" placeholder="0" style="text-align:center;font-size:13px" oninput="_propostaEdit.itens[${idx}].desc_pct=+this.value||0;calcSubtotal(${idx})">
+      <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:center">
+        <input class="fi" type="number" min="0" max="100" value="${it.desc_pct||0}" oninput="_propostaEdit.itens[${idx}].desc_pct=+this.value||0;calcSubtotal(${idx})" style="text-align:center;font-size:13px">
       </td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:110px;text-align:right;font-weight:700;font-size:13px" id="pitem-sub-${idx}">
+      <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right;font-weight:700;font-size:14px;color:var(--text);white-space:nowrap" id="pitem-sub-${idx}">
         R$ ${fmtR(((it.vunit||0)*(it.qtd||1))*(1-(it.desc_pct||0)/100))}
       </td>
-      <td style="padding:10px 8px;border-bottom:1px solid var(--border);width:70px;text-align:center">
-        <button title="${it.oculto?'Mostrar no PDF':'Ocultar no PDF'}" onclick="toggleOcultarItem(${idx})" style="background:none;border:none;cursor:pointer;color:${it.oculto?'var(--muted)':'var(--g)'};font-size:16px;margin-right:4px"><i class="ti ti-eye${it.oculto?'-off':''}"></i></button>
-        <button title="Remover item" onclick="removerItemProposta(${idx})" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px"><i class="ti ti-trash"></i></button>
+      <td style="padding:12px 6px;border-bottom:1px solid var(--border);vertical-align:top;text-align:center">
+        <button title="${it.oculto?'Mostrar no PDF':'Ocultar no PDF'}" onclick="toggleOcultarItem(${idx})" style="background:none;border:none;cursor:pointer;color:${it.oculto?'#aaa':'var(--g)'};font-size:17px;display:block;margin-bottom:6px"><i class="ti ti-eye${it.oculto?'-off':''}"></i></button>
+        <button title="Remover" onclick="removerItemProposta(${idx})" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:17px;display:block"><i class="ti ti-trash"></i></button>
       </td>
     </tr>`).join('');
 
@@ -1635,7 +1635,7 @@ function renderEditorPropostaTela(){
       <button class="btn btng" onclick="salvarPropostaEditada()"><i class="ti ti-check"></i> Salvar</button>
     </div>
 
-    <div style="max-width:1100px;margin:0 auto;padding:24px">
+    <div style="max-width:1400px;margin:0 auto;padding:24px 32px">
 
       <!-- CABEÇALHO -->
       <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:16px">
@@ -1682,16 +1682,25 @@ function renderEditorPropostaTela(){
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Itens da proposta</div>
           <button onclick="adicionarItemProposta()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-plus"></i> Adicionar item</button>
         </div>
-        <table style="width:100%;border-collapse:collapse">
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed">
+          <colgroup>
+            <col style="width:48px">
+            <col>
+            <col style="width:120px">
+            <col style="width:90px">
+            <col style="width:90px">
+            <col style="width:120px">
+            <col style="width:64px">
+          </colgroup>
           <thead>
             <tr style="background:var(--hover)">
-              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:40px">Nº</th>
-              <th style="padding:8px;font-size:11px;text-align:left;color:var(--muted)">Item</th>
-              <th style="padding:8px;font-size:11px;text-align:right;color:var(--muted);width:110px">Valor unit.</th>
-              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:70px">Quantidade</th>
-              <th style="padding:8px;font-size:11px;text-align:center;color:var(--muted);width:80px">Desconto</th>
-              <th style="padding:8px;font-size:11px;text-align:right;color:var(--muted);width:110px">Subtotal</th>
-              <th style="padding:8px;width:70px"></th>
+              <th style="padding:8px 6px;font-size:11px;text-align:center;color:var(--muted)">Nº</th>
+              <th style="padding:8px 10px;font-size:11px;text-align:left;color:var(--muted)">Item</th>
+              <th style="padding:8px 10px;font-size:11px;text-align:right;color:var(--muted)">Valor unit.</th>
+              <th style="padding:8px 10px;font-size:11px;text-align:center;color:var(--muted)">Quantidade</th>
+              <th style="padding:8px 10px;font-size:11px;text-align:center;color:var(--muted)">Desconto</th>
+              <th style="padding:8px 10px;font-size:11px;text-align:right;color:var(--muted)">Subtotal</th>
+              <th style="padding:8px 6px"></th>
             </tr>
           </thead>
           <tbody id="prop-itens-tbody">${itensHTML}</tbody>

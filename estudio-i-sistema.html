@@ -363,7 +363,10 @@ textarea.fi{resize:vertical;min-height:70px}
     </div>
     <div style="margin-bottom:20px;text-align:left">
       <label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">Senha</label>
-      <input class="fi" type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()">
+      <div style="position:relative">
+        <input class="fi" type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key===&apos;Enter&apos;)doLogin()" style="padding-right:38px;box-sizing:border-box;width:100%">
+        <span id="toggle-senha" onclick="const i=document.getElementById('login-senha');const s=i.type==='password';i.type=s?'text':'password';this.innerHTML=s?'<i class=&quot;ti ti-eye-off&quot;></i>':'<i class=&quot;ti ti-eye&quot;></i>'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:16px"><i class="ti ti-eye"></i></span>
+      </div>
     </div>
     <button class="btn btng" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()" id="login-btn">Entrar</button>
     <div style="margin-top:14px"><a href="#" onclick="doResetSenha()" style="font-size:12px;color:var(--g)">Esqueci minha senha</a></div>
@@ -619,6 +622,7 @@ const fbDb = firebase.firestore();
 // Mapeamento email -> perfil
 const EMAIL_PERFIS = {
   'estudioicom@gmail.com': 'irene',
+  'irenebellotti@gmail.com': 'irene',
   'irene@eicomunicacao.com.br': 'irene',
   'contato@eicomunicacao.com.br': 'jessica',
   'jessica@estudioi.com.br': 'jessica',

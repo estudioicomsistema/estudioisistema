@@ -698,7 +698,6 @@ fbAuth.onAuthStateChanged(user=>{
     document.getElementById('user-av-top').textContent=p.ini;
     document.getElementById('user-name-top').textContent=p.nome;
     document.getElementById('user-role-badge').textContent=p.cargo;
-    // Update nav visibility
     const mapa={dashboard:'dash',jobs:'jobs',projetos:'projetos','calendário':'calendario',propostas:'propostas',clientes:'clientes',colaboradores:'colaboradores',timesheet:'timesheet'};
     document.querySelectorAll('.nav-btn').forEach(b=>{
       const t=b.textContent.trim().toLowerCase();
@@ -706,15 +705,63 @@ fbAuth.onAuthStateChanged(user=>{
       b.style.display=!mod||p.acesso.includes(mod)?'':'none';
     });
     hideLogin();
-    setTimeout(()=>{
-      rCal();
-      rDash();
-      go('dash');
-    }, 100);
+    // Carregar dados do Firestore antes de renderizar
+    carregarDadosFirestore().then(()=>{
+      setTimeout(()=>{rCal();rDash();go('dash');},100);
+    });
   } else {
     showLogin();
   }
 });
+
+// =================== FIRESTORE SYNC ===================
+let _fsLoaded=false;
+
+async function carregarDadosFirestore(){
+  try {
+    const [snapCli,snapColab,snapProp,snapJobs] = await Promise.all([
+      fbDb.collection('clientes').get(),
+      fbDb.collection('colaboradores').get(),
+      fbDb.collection('propostas').get(),
+      fbDb.collection('jobs').get(),
+    ]);
+    if(!snapCli.empty) clientes=snapCli.docs.map(d=>({...d.data(),_fsId:d.id}));
+    if(!snapColab.empty) colabs=snapColab.docs.map(d=>({...d.data(),_fsId:d.id}));
+    if(!snapProp.empty) propostas=snapProp.docs.map(d=>({...d.data(),_fsId:d.id}));
+    if(!snapJobs.empty) jobs=snapJobs.docs.map(d=>({...d.data(),_fsId:d.id}));
+    _fsLoaded=true;
+  } catch(e){
+    console.warn('Firestore load error:',e);
+    // Continua com dados locais se falhar
+  }
+}
+
+async function fsUpsert(colecao, obj){
+  // Remove _fsId do objeto antes de salvar no Firestore
+  const data={...obj};
+  const fsId=data._fsId;
+  delete data._fsId;
+  try {
+    if(fsId){
+      await fbDb.collection(colecao).doc(fsId).set(data);
+      obj._fsId=fsId;
+    } else {
+      const ref=await fbDb.collection(colecao).add(data);
+      obj._fsId=ref.id;
+    }
+  } catch(e){
+    console.warn('fsUpsert error:',e);
+    toast('⚠️ Erro ao salvar no banco: '+e.message);
+  }
+}
+
+async function fsDelete(colecao, obj){
+  try {
+    if(obj._fsId) await fbDb.collection(colecao).doc(obj._fsId).delete();
+  } catch(e){
+    console.warn('fsDelete error:',e);
+  }
+}
 
 // =================== DATA ===================
 const HOJE_STR = new Date().toISOString().split('T')[0];
@@ -1395,10 +1442,13 @@ function saveEditColab(id){
   c.aniv=document.getElementById('eco-aniv').value;
   c.ferias=document.getElementById('eco-ferias').value;
   c.ini=ini(c.nome);
+  fsUpsert('colaboradores',c);
   closeM();rColabs();toast(c.nome+' atualizado!');
 }
 function deleteColab(id){
   if(!confirm('Excluir este colaborador?'))return;
+  const c=colabs.find(x=>x.id===id);
+  if(c)fsDelete('colaboradores',c);
   colabs=colabs.filter(x=>x.id!==id);
   closeM();rColabs();
 }
@@ -1838,6 +1888,8 @@ function salvarClienteRapidoTela(){
 
 function deletarPropostaTela(id){
   if(!confirm('Excluir esta proposta permanentemente?'))return;
+  const p=propostas.find(x=>x.id===id);
+  if(p)fsDelete('propostas',p);
   propostas=propostas.filter(x=>x.id!==id);
   fecharEditorProposta();rPropostas();toast('Proposta excluída.');
 }
@@ -1846,6 +1898,7 @@ function arquivarPropostaTela(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   p.arquivada=!p.arquivada;
   if(_propostaEdit)_propostaEdit.arquivada=p.arquivada;
+  fsUpsert('propostas',p);
   fecharEditorProposta();rPropostas();toast(p.arquivada?'Proposta arquivada.':'Proposta reativada.');
 }
 
@@ -1933,8 +1986,9 @@ function salvarPropostaEditada(){
   const idx=propostas.findIndex(x=>x.id===_propostaEditId);
   if(idx===-1)return;
   propostas[idx]=_propostaEdit;
+  fsUpsert('propostas',_propostaEdit);
   _propostaEdit=null;_propostaEditId=null;
-  closeM();rPropostas();toast('Proposta salva!');
+  fecharEditorProposta();rPropostas();toast('Proposta salva!');
 }
 
 function novoClienteRapidoEditor(){
@@ -2163,6 +2217,7 @@ function saveNewProposta(){
     ocultarTotal:false,consid:CONSID_DEFAULT,arquivada:false,
   };
   propostas.unshift(nova);
+  fsUpsert('propostas',nova);
   closeM();
   setTimeout(()=>editarPropostaCompleta(nova.id),150);
   toast('Proposta '+nova.num+' criada!');
@@ -2173,6 +2228,8 @@ function editProposta(id){editarPropostaCompleta(id);}
 
 function deletarProposta(id){
   if(!confirm('Excluir esta proposta permanentemente?'))return;
+  const p=propostas.find(x=>x.id===id);
+  if(p)fsDelete('propostas',p);
   propostas=propostas.filter(x=>x.id!==id);
   closeM();rPropostas();toast('Proposta excluída.');
 }
@@ -2180,6 +2237,7 @@ function deletarProposta(id){
 function arquivarProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   p.arquivada=!p.arquivada;
+  fsUpsert('propostas',p);
   closeM();rPropostas();toast(p.arquivada?'Proposta arquivada.':'Proposta reativada.');
 }
 
@@ -2187,6 +2245,7 @@ function duplicarProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const nova={...JSON.parse(JSON.stringify(p)),id:++nid,num:'P'+String(nid).padStart(3,'0'),data:HOJE_STR,status:'Rascunho',arquivada:false};
   propostas.unshift(nova);
+  fsUpsert('propostas',nova);
   closeM();rPropostas();toast('Proposta duplicada: '+nova.num);
 }
 
@@ -2421,10 +2480,13 @@ function saveEditCliente(id){
   c.cidade=document.getElementById('ec-cid').value;
   c.end=document.getElementById('ec-end').value;
   c.anots=document.getElementById('ec-anots').value;
+  fsUpsert('clientes',c);
   closeM();rClientes();toast('Cliente '+c.nome+' atualizado!');
 }
 function deleteCliente(id){
   if(!confirm('Excluir este cliente? Os jobs vinculados não serão excluídos.'))return;
+  const c=clientes.find(x=>x.id===id);
+  if(c)fsDelete('clientes',c);
   clientes=clientes.filter(x=>x.id!==id);
   closeM();rClientes();
 }
@@ -2440,7 +2502,9 @@ function openNewCliente(){
 function saveCliente(){
   const n=document.getElementById('nc-n').value.trim();if(!n)return;
   const nextNum=clientes.length>0?Math.max(...clientes.map(c=>c.num||0))+1:1;
-  clientes.push({id:++nid,num:nextNum,nome:n,razao:document.getElementById('nc-r').value||n,email:document.getElementById('nc-e').value,cnpj:document.getElementById('nc-cnpj').value,tel:document.getElementById('nc-tel').value,end:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cid').value,contatos:[],anots:'',star:false});
+  const novoCli={id:++nid,num:nextNum,nome:n,razao:document.getElementById('nc-r').value||n,email:document.getElementById('nc-e').value,cnpj:document.getElementById('nc-cnpj').value,tel:document.getElementById('nc-tel').value,end:document.getElementById('nc-end').value,cidade:document.getElementById('nc-cid').value,contatos:[],anots:'',star:false};
+  clientes.push(novoCli);
+  fsUpsert('clientes',novoCli);
   closeM();rClientes();
 }
 

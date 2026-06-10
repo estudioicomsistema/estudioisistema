@@ -1462,17 +1462,26 @@ function openProposta(id){
     +'</div><div class="mof"><button class="btn btn-danger" onclick="deletarProposta('+id+')"><i class="ti ti-trash"></i> Excluir</button><button class="btn" onclick="arquivarProposta('+id+')"><i class="ti ti-archive"></i> '+(p.arquivada?'Reativar':'Arquivar')+'</button><button class="btn" onclick="closeM();editProposta('+id+')"><i class="ti ti-edit"></i> Editar</button><button class="btn" onclick="closeM();duplicarProposta('+id+')"><i class="ti ti-copy"></i> Duplicar</button><button class="btn btng" onclick="imprimirProposta('+id+')"><i class="ti ti-printer"></i> PDF</button></div></div>');
 }
 
+// variável temporária para guardar dados da proposta em edição
+let _propTemp={};
+
 function novoClienteRapido(){
-  const back=document.getElementById('mc').innerHTML;
-  modal('<div class="mo" style="max-width:480px"><div class="moh"><div class="mot"><i class="ti ti-building"></i> Novo cliente</div><button class="ibb" onclick="document.getElementById(\'mc\').innerHTML=back"><i class="ti ti-x"></i></button></div>'
+  // Salvar dados já preenchidos na proposta
+  _propTemp={
+    titulo:(document.getElementById('np-titulo')||{}).value||'',
+    status:(document.getElementById('np-status')||{}).value||'Rascunho',
+    data:(document.getElementById('np-data')||{}).value||HOJE_STR,
+    obs:(document.getElementById('np-obs')||{}).value||'',
+  };
+  modal('<div class="mo" style="max-width:480px"><div class="moh"><div class="mot"><i class="ti ti-building"></i> Novo cliente</div><button class="ibb" onclick="openNewProposta()"><i class="ti ti-x"></i></button></div>'
     +'<div class="frow"><div class="fg"><label class="fl">Nome / apelido</label><input class="fi" id="ncr-nome" placeholder="Ex: ABC Prosperity"></div><div class="fg"><label class="fl">Razão social</label><input class="fi" id="ncr-razao"></div></div>'
     +'<div class="frow"><div class="fg"><label class="fl">CNPJ</label><input class="fi" id="ncr-cnpj" placeholder="00.000.000/0001-00"></div><div class="fg"><label class="fl">E-mail</label><input class="fi" id="ncr-email"></div></div>'
     +'<div class="frow"><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="ncr-cidade"></div><div class="fg"><label class="fl">Telefone</label><input class="fi" id="ncr-tel"></div></div>'
     +'<div class="fg"><label class="fl">Endereço</label><input class="fi" id="ncr-end"></div>'
-    +'<div class="mof"><button class="btn" onclick="document.getElementById(\'mc\').innerHTML=back">Voltar</button><button class="btn btng" onclick="salvarClienteRapido(back)"><i class="ti ti-check"></i> Criar e selecionar</button></div></div>');
+    +'<div class="mof"><button class="btn" onclick="openNewProposta()">Voltar</button><button class="btn btng" onclick="salvarClienteRapido()"><i class="ti ti-check"></i> Criar e selecionar</button></div></div>');
 }
 
-function salvarClienteRapido(back){
+function salvarClienteRapido(){
   const nome=document.getElementById('ncr-nome').value.trim();
   if(!nome){toast('Informe o nome do cliente.');return;}
   const novo={
@@ -1488,15 +1497,8 @@ function salvarClienteRapido(back){
     contatos:[],star:false,
   };
   clientes.push(novo);
-  // Restaurar modal de proposta e selecionar o novo cliente
-  document.getElementById('mc').innerHTML=back;
-  const sel=document.getElementById('np-cli');
-  if(sel){
-    const opt=document.createElement('option');
-    opt.value=novo.nome;opt.textContent=novo.nome;
-    sel.appendChild(opt);sel.value=novo.nome;
-    preencherCabecalhoNovaProposta();
-  }
+  _propTemp._clienteSelecionado=novo.nome;
+  openNewProposta();
   toast('Cliente '+novo.nome+' criado!');
 }
 
@@ -1514,8 +1516,24 @@ function openNewProposta(){
     +'</div>'
     +'<div class="info-box"><i class="ti ti-info-circle"></i><span>Os itens e parcelas podem ser adicionados após criar a proposta, clicando em Editar.</span></div>'
     +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveNewProposta()"><i class="ti ti-check"></i> Criar proposta</button></div></div>');
-  // Preencher com primeiro cliente automaticamente
-  setTimeout(preencherCabecalhoNovaProposta, 50);
+  // Restaurar dados salvos e/ou selecionar cliente criado
+  setTimeout(()=>{
+    if(_propTemp.titulo){
+      const t=document.getElementById('np-titulo');if(t)t.value=_propTemp.titulo;
+    }
+    if(_propTemp.status){
+      const s=document.getElementById('np-status');if(s)s.value=_propTemp.status;
+    }
+    if(_propTemp.obs){
+      const o=document.getElementById('np-obs');if(o)o.value=_propTemp.obs;
+    }
+    const sel=document.getElementById('np-cli');
+    if(sel&&_propTemp._clienteSelecionado){
+      sel.value=_propTemp._clienteSelecionado;
+      _propTemp._clienteSelecionado=null;
+    }
+    preencherCabecalhoNovaProposta();
+  },50);
 }
 
 function preencherCabecalhoNovaProposta(){

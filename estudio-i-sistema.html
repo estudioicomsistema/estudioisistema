@@ -1462,6 +1462,61 @@ function openProposta(id){
     +'</div><div class="mof"><button class="btn btn-danger" onclick="deletarProposta('+id+')"><i class="ti ti-trash"></i> Excluir</button><button class="btn" onclick="arquivarProposta('+id+')"><i class="ti ti-archive"></i> '+(p.arquivada?'Reativar':'Arquivar')+'</button><button class="btn" onclick="closeM();editProposta('+id+')"><i class="ti ti-edit"></i> Editar</button><button class="btn" onclick="closeM();duplicarProposta('+id+')"><i class="ti ti-copy"></i> Duplicar</button><button class="btn btng" onclick="imprimirProposta('+id+')"><i class="ti ti-printer"></i> PDF</button></div></div>');
 }
 
+function openNewProposta(){
+  const statusOpts=['Rascunho','Em análise','Enviada','Aprovada','Recusada'].map(s=>'<option'+(s==='Rascunho'?' selected':'')+'>'+s+'</option>').join('');
+  const cliOpts=clientes.map(c=>'<option value="'+c.nome+'">'+c.nome+'</option>').join('');
+  modal('<div class="mo mo-lg" style="max-width:660px"><div class="moh"><div class="mot"><i class="ti ti-plus"></i> Nova proposta</div><button class="ibb" onclick="closeM()"><i class="ti ti-x"></i></button></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Título</label><input class="fi" id="np-titulo" placeholder="Ex: Serviços Mensais 2026"></div><div class="fg"><label class="fl">Status</label><select class="fi" id="np-status">'+statusOpts+'</select></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Data</label><input class="fi" type="date" id="np-data" value="'+HOJE_STR+'"></div><div class="fg"><label class="fl">Obs</label><textarea class="fi" id="np-obs" rows="1" style="min-height:38px"></textarea></div></div>'
+    +'<div style="border-top:1px solid var(--border);margin:12px 0;padding-top:12px"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Cabeçalho do cliente</div>'
+    +'<div class="fg" style="margin-bottom:8px"><label class="fl">Cliente</label><select class="fi" id="np-cli" onchange="preencherCabecalhoNovaProposta()">'+cliOpts+'</select></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">Razão social</label><input class="fi" id="np-razao"></div><div class="fg"><label class="fl">CNPJ</label><input class="fi" id="np-cnpj"></div></div>'
+    +'<div class="frow"><div class="fg"><label class="fl">E-mail</label><input class="fi" id="np-email"></div><div class="fg"><label class="fl">Cidade / UF</label><input class="fi" id="np-cidade"></div></div>'
+    +'<div class="fg"><label class="fl">Endereço</label><input class="fi" id="np-endereco"></div>'
+    +'</div>'
+    +'<div class="info-box"><i class="ti ti-info-circle"></i><span>Os itens e parcelas podem ser adicionados após criar a proposta, clicando em Editar.</span></div>'
+    +'<div class="mof"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn btng" onclick="saveNewProposta()"><i class="ti ti-check"></i> Criar proposta</button></div></div>');
+  // Preencher com primeiro cliente automaticamente
+  setTimeout(preencherCabecalhoNovaProposta, 50);
+}
+
+function preencherCabecalhoNovaProposta(){
+  const sel=document.getElementById('np-cli');
+  if(!sel)return;
+  const c=clientes.find(x=>x.nome===sel.value);
+  if(!c)return;
+  document.getElementById('np-razao').value=c.razao||c.nome||'';
+  document.getElementById('np-cnpj').value=c.cnpj||'';
+  document.getElementById('np-email').value=c.email||'';
+  document.getElementById('np-cidade').value=c.cidade||'';
+  document.getElementById('np-endereco').value=c.endereco||'';
+}
+
+function saveNewProposta(){
+  const titulo=document.getElementById('np-titulo').value.trim();
+  if(!titulo){toast('Informe o título da proposta.');return;}
+  const nova={
+    id:++nid,
+    num:'P'+String(nid).padStart(3,'0'),
+    titulo,
+    cliente:document.getElementById('np-cli').value,
+    data:document.getElementById('np-data').value,
+    status:document.getElementById('np-status').value,
+    obs:document.getElementById('np-obs').value,
+    cli_razao:document.getElementById('np-razao').value,
+    cli_cnpj:document.getElementById('np-cnpj').value,
+    cli_email:document.getElementById('np-email').value,
+    cli_cidade:document.getElementById('np-cidade').value,
+    cli_endereco:document.getElementById('np-endereco').value,
+    itens:[],
+    parcelas:[],
+    validade:15,
+    arquivada:false,
+  };
+  propostas.unshift(nova);
+  closeM();rPropostas();toast('Proposta '+nova.num+' criada!');
+}
+
 function editProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const statusOpts=['Rascunho','Em análise','Enviada','Aprovada','Recusada'].map(s=>'<option'+(s===p.status?' selected':'')+'>'+s+'</option>').join('');

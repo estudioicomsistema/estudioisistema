@@ -640,6 +640,8 @@ function showLogin(){
 function hideLogin(){
   document.getElementById('login-screen').style.display='none';
   document.querySelector('.topbar').style.display='';
+  // Garante que pelo menos o dash aparece
+  document.querySelectorAll('.view,.view-full').forEach(x=>{x.style.display='';});
 }
 
 function doLogin(){
@@ -688,9 +690,11 @@ fbAuth.onAuthStateChanged(user=>{
       b.style.display=!mod||p.acesso.includes(mod)?'':'none';
     });
     hideLogin();
-    rCal();
-    rDash();
-    go('dash');
+    setTimeout(()=>{
+      rCal();
+      rDash();
+      go('dash');
+    }, 100);
   } else {
     showLogin();
   }
@@ -1068,6 +1072,9 @@ function rPanel(j){
     right.innerHTML=rightTabs
       +buildComentariosHTML(j.id).replace('id="tab-comentarios"','id="rcomentarios"').replace('class="tab-content"','class="tab-content on"').replace('style="display:none"','')
       +('<div id="ranexos" class="tab-content" style="display:none">'
+        +'<div style="margin-bottom:12px" id="drive-link-box-'+j.id+'">'
+        +(j.driveLink?'<a href="'+j.driveLink+'" target="_blank" style="display:flex;align-items:center;gap:7px;background:var(--gl);color:var(--gd);border:1px solid var(--g);border-radius:8px;padding:9px 13px;font-size:12px;font-weight:600;text-decoration:none"><i class="ti ti-brand-google-drive" style="font-size:16px"></i>Abrir pasta do job no Drive</a>':'<div style="font-size:11px;color:var(--muted);margin-bottom:5px">Link da pasta no Drive</div><div style="display:flex;gap:6px"><input class="fi" id="drive-link-input-'+j.id+'" placeholder="Cole o link da pasta..." style="font-size:11px;flex:1"><button onclick="saveDriveLink('+j.id+')" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:0 10px;font-size:11px;font-weight:600;cursor:pointer">Salvar</button></div>')
+        +'</div>'
         +'<div id="drive-files-'+j.id+'"></div>'
         +'<div class="drive-drop" id="drop-'+j.id+'" ondragover="event.preventDefault()" ondrop="handleDrop(event,'+j.id+')" onclick="triggerUpload('+j.id+')">'
         +'<i class="ti ti-cloud-upload"></i>'
@@ -1740,6 +1747,7 @@ function toast(msg){
 const GDRIVE_CLIENT_ID = '674247923232-q8fc429bq3aen8jg67g2s40s651p60u3.apps.googleusercontent.com';
 const GITHUB_PAGES_URL = 'https://estudioicomsistema.github.io/estudioisistema/estudio-i-sistema.html';
 const GDRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_ROOT = 'https://drive.google.com/drive/folders/1I2hAqCe-hs9JRH-GFOJL9xresUHWjP6m';
 let driveToken = null;
 let jobAnexos = {};  // jobId -> [{name,id,url,size,mimeType}]
 
@@ -2181,6 +2189,20 @@ async function getJobFolderId(jobId) {
   const projFolderId = await ensureSubFolder(rootFolderId, projName);
   const fname = j.num + ' — ' + j.titulo.slice(0,40);
   return await ensureSubFolder(projFolderId, fname);
+}
+
+function saveDriveLink(jobId) {
+  const input = document.getElementById('drive-link-input-'+jobId);
+  if(!input) return;
+  const link = input.value.trim();
+  if(!link) { toast('Cole o link da pasta do Drive.'); return; }
+  const j = jobs.find(x=>x.id===jobId);
+  if(!j) return;
+  j.driveLink = link;
+  // Rerender the link box
+  const box = document.getElementById('drive-link-box-'+jobId);
+  if(box) box.innerHTML = '<a href="'+link+'" target="_blank" style="display:flex;align-items:center;gap:7px;background:var(--gl);color:var(--gd);border:1px solid var(--g);border-radius:8px;padding:9px 13px;font-size:12px;font-weight:600;text-decoration:none"><i class="ti ti-brand-google-drive" style="font-size:16px"></i>Abrir pasta do job no Drive</a>';
+  toast('Link da pasta salvo!');
 }
 
 function triggerUpload(jobId) {

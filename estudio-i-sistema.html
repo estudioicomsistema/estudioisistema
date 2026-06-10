@@ -1449,6 +1449,15 @@ function fmtData(s){if(!s)return '';const[y,m,d]=s.split('-');return d+'/'+m+'/'
 
 // =================== PROPOSTA — ENGINE COMPLETA ===================
 
+function parseBR(v){
+  // Converte "1.234,56" ou "1234,56" ou "1234.56" para número
+  if(!v)return 0;
+  const s=String(v).trim();
+  // Se tem vírgula como decimal: remove pontos de milhar, troca vírgula por ponto
+  if(s.includes(','))return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;
+  return parseFloat(s)||0;
+}
+
 const ESTUDIO_DADOS={
   razao:'BF Publicidade e Marketing Ltda.',
   cnpj:'18.397.060/0001-55',
@@ -1587,7 +1596,7 @@ function renderEditorPropostaTela(){
         <textarea class="fi" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
       </td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right">
-        <input class="fi" type="number" min="0" step="0.01" value="${it.vunit||0}" oninput="_propostaEdit.itens[${idx}].vunit=+this.value;calcSubtotal(${idx})" style="text-align:right;font-size:13px">
+        <input class="fi" type="text" inputmode="decimal" value="${fmtR(it.vunit||0)}" oninput="_propostaEdit.itens[${idx}].vunit=parseBR(this.value);calcSubtotal(${idx})" onblur="this.value=fmtR(_propostaEdit.itens[${idx}].vunit||0)" style="text-align:right;font-size:13px">
       </td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:center">
         <input class="fi" type="number" min="1" value="${it.qtd||1}" oninput="_propostaEdit.itens[${idx}].qtd=+this.value;calcSubtotal(${idx})" style="text-align:center;font-size:13px">
@@ -1608,7 +1617,7 @@ function renderEditorPropostaTela(){
   const parcHTML=(p.parcelas||[]).map((pc,idx)=>`
     <tr>
       <td style="padding:5px 8px"><input class="fi" type="date" value="${pc.venc||''}" oninput="_propostaEdit.parcelas[${idx}].venc=this.value" style="font-size:11px;padding:5px 8px"></td>
-      <td style="padding:5px 8px"><input class="fi" type="number" value="${pc.valor||0}" oninput="_propostaEdit.parcelas[${idx}].valor=+this.value" style="font-size:11px;padding:5px 8px"></td>
+      <td style="padding:5px 8px"><input class="fi" type="text" inputmode="decimal" value="${fmtR(pc.valor||0)}" oninput="_propostaEdit.parcelas[${idx}].valor=parseBR(this.value)" onblur="this.value=fmtR(_propostaEdit.parcelas[${idx}].valor||0)" style="font-size:11px;padding:5px 8px;text-align:right"></td>
       <td style="padding:5px 8px">
         <select class="fi" oninput="_propostaEdit.parcelas[${idx}].forma=this.value" style="font-size:11px;padding:5px 8px">
           ${['Pix','Boleto','Transferência','Cartão','Cheque','Dinheiro','Débito Automático','Depósito'].map(f=>`<option${f===pc.forma?' selected':''}>${f}</option>`).join('')}
@@ -1725,7 +1734,7 @@ function renderEditorPropostaTela(){
             <select class="fi" style="font-size:11px;padding:5px 8px;width:auto" onchange="_propostaEdit.condForma=this.value">${formaOpts}</select>
             <input class="fi" type="number" id="parc-n" value="${(p.parcelas||[]).length||1}" min="1" max="60" style="width:55px;font-size:11px;padding:5px 8px" placeholder="N">
             <span style="font-size:11px;color:var(--muted)">× R$</span>
-            <input class="fi" type="number" id="parc-val" value="${totalVisivel>0?Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100:''}" step="0.01" style="width:90px;font-size:11px;padding:5px 8px" placeholder="Valor">
+            <input class="fi" type="text" inputmode="decimal" id="parc-val" value="${totalVisivel>0?fmtR(Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100):''}" style="width:90px;font-size:11px;padding:5px 8px;text-align:right" placeholder="0,00">0?Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100:''}" step="0.01" style="width:90px;font-size:11px;padding:5px 8px" placeholder="Valor">
             <span style="font-size:11px;color:var(--muted)">a partir de</span>
             <input class="fi" type="date" id="parc-inicio" value="${HOJE_STR}" style="font-size:11px;padding:5px 8px">
             <button onclick="gerarParcelasAuto()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-wand"></i> Gerar</button>
@@ -1902,7 +1911,7 @@ function removerParcelaProposta(idx){
 
 function gerarParcelasAuto(){
   const n=parseInt(document.getElementById('parc-n').value)||1;
-  const val=parseFloat(document.getElementById('parc-val').value)||calcTotal(_propostaEdit)/n;
+  const val=parseBR(document.getElementById('parc-val').value)||calcTotalVisivel(_propostaEdit)/n;
   const inicio=document.getElementById('parc-inicio').value||HOJE_STR;
   const forma=_propostaEdit.condForma||'Pix';
   const parcelas=[];

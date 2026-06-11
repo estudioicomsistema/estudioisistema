@@ -811,6 +811,7 @@ let clientes=[
   {id:1,num:1,nome:'ABC Prosperity',razao:'ABC Prosperity',email:'financeiro@somosabc.com.br',cnpj:'37.611.745/0001-05',tel:'(31) 3010-5000',end:'Rua Antônio de Albuquerque, 271, 8º andar',cidade:'Belo Horizonte / MG',contatos:[{nome:'Ronaldo Behrens',email:'ronaldo.behrens@somosabc.com.br'}],anots:'',star:true},
   {id:2,num:2,nome:'CERN Consultoria',razao:'CERN Consultoria Empreendimentos',email:'cern@cern.com.br',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:true},
   {id:3,num:3,nome:'Gontijo Mendes',razao:'Gontijo Mendes Advogados',email:'',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[],anots:'',star:false},
+  {id:4,num:4,nome:'Comarca Contabilidade',razao:'Comarca Contabilidade',email:'karinecard@yahoo.com.br',cnpj:'',tel:'',end:'',cidade:'Belo Horizonte / MG',contatos:[{nome:'Karine',email:'karinecard@yahoo.com.br'}],anots:'',star:true},
 ];
 // Projetos: {id, num (ex:'1.6'), cliId, cliNum, nome, mes, ano}
 let projetos=[
@@ -837,6 +838,31 @@ let tsEntries=[
 
 // PROPOSTAS
 let propostas=[
+  {id:502,num:'P502',titulo:'Serviços Mensais',cliente:'Comarca Contabilidade',
+   obs:'Comarca Contabilidade',validade:15,data:'2026-06-11',status:'Em análise',tipo:'Mensal',
+   cli_razao:'Comarca Contabilidade',cli_cnpj:'',cli_email:'karinecard@yahoo.com.br',
+   cli_cidade:'Belo Horizonte / MG',cli_endereco:'',cli_contato:'Karine',
+   vigIni:'2026-06-11',vigFim:'2027-06-11',vigDuracao:'12 meses',
+   vigClausula:'O presente instrumento vigorará pelo prazo de 12 (doze) meses, com início na data de assinatura, renovando-se automaticamente por iguais períodos, salvo manifestação contrária com antecedência mínima de 30 (trinta) dias, nos termos do Contrato de Prestação de Serviços de Comunicação registrado junto ao Cartório de Títulos e Documentos da Comarca de Belo Horizonte sob n.° 01693257.',
+   condForma:'Pix',ocultarTotal:false,arquivada:false,
+   consid:`- Valores acima não incluem produção gráfica e áudio visual;
+- Valores acima não incluem deslocamento, alimentação e hospedagem;
+- Valores de impulsionamento/anúncios/hospedagem de site(s) e ferramenta de envio de e-mail por conta do cliente;
+- A proposta não contempla Assessoria de Comunicação e nem Assessoria de Imprensa.
+- Vigência de 1 ano a partir da data de assinatura desta proposta.`,
+   itens:[
+    {n:1,titulo:'Gestão de redes sociais',descricao:'Publicação e gestão de conteúdos para Meta e LinkedIn\nDesenvolvimento de editorias e cronograma de postagens, junto ao cliente, para as publicações mensais;\nCriação de conteúdo para até 2 publicações por semana;',vunit:3500,qtd:1,desc_pct:0},
+    {n:2,titulo:'Gestão de tráfego',descricao:'Criação e gestão de impulsionamento de conteúdos nas redes sociais.\nAdministração da verba de impulsionamento.\nAnálise e Apresentação de Resultados (ROI Return on Investment)\nCriação e gestão de anúncios no Google.\nAnálise - Google Analytics.\n**Não inclui verba de impulsionamento.',vunit:1690,qtd:1,desc_pct:0},
+    {n:3,titulo:'Rebrading',descricao:'',vunit:4370,qtd:1,desc_pct:15},
+    {n:4,titulo:'Desenvolvimento de site',descricao:'- Planejamento, design, instalação, configuração e desenvolvimento de Site com até 06 links (abas) - WordPress\n- Otimização de desempenho e SEO;\n- Testes de funcionalidades, compatibilidade e segurança;\n- Configuração de hospedagem e domínio.\n- Inclui 2 reuniões: uma de briefing e outra para apresentação final do site.\n- refações*\n*produção de conteúdo/texto desenvolvido junto ao cliente.\nHOSPEDAGEM PREMIUM HOSTINGER R$ 260,00 POR 2 ANOS. (POR CONTA DO CLIENTE)\n> Gerenciamento autônomo: todos os nossos sites são desenvolvidos com CMS que possibilitam gestão plena e intuitiva de conteúdos pela equipe interna (adicionar ou alterar conteúdos como textos, imagens, vídeos, artigos, corrigir algo no site sem saber programar.)\n> Protótipo e mapeamento prévio: Sim! Toda estrutura é desenhada e validada junto ao cliente antes da programação.\n> SEO técnico e editorial é aplicado desde o início, com uso correto de headings, plugins, palavras-chave, hierarquia de conteúdo, tempo de carregamento e boas práticas de indexação.\n>Trabalhamos com técnicas de cache, otimização de imagens, compressão e recursos avançados de performance.',vunit:11970,qtd:1,desc_pct:13},
+   ],
+   parcelas:[
+    {venc:'2026-07-01',valor:4830,forma:'Pix'},
+    {venc:'2026-08-03',valor:4830,forma:'Pix'},
+    {venc:'2026-09-01',valor:4830,forma:'Pix'},
+    {venc:'2026-10-01',valor:4830,forma:'Pix'},
+   ],
+  },
   {id:1,num:'P332.5',titulo:'Serviços Mensais 2026',cliente:'ABC Prosperity',projeto:'ABC Prosperity',validade:15,data:'2026-06-05',
    itens:[
     {n:1,titulo:'Gestão de Redes Sociais',desc:'Publicação e gestão de conteúdos para Instagram, LinkedIn, YouTube e WhatsApp;\nDesenvolvimento de editorias e cronograma de postagens;\nCriação de conteúdo para até 2 publicações por semana;\nCriação de layouts específicos para as publicações em cada canal.',vunit:4400,qtd:1},

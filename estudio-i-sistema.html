@@ -1539,7 +1539,7 @@ function openProposta(id){
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;font-size:12px">${i.n}</td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0">
         <strong style="font-size:13px">${i.titulo}</strong>
-        ${i.descricao?`<div style="font-size:11px;color:#555;margin-top:3px;white-space:pre-line">${i.descricao}</div>`:''}
+        ${i.descricao?`<div style="font-size:11px;color:#555;margin-top:3px;white-space:pre-line">${renderFmt(i.descricao)}</div>`:''}
       </td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;text-align:right;font-size:12px;white-space:nowrap">R$ ${fmtR(i.vunit||0)}</td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;text-align:center;font-size:12px">${i.qtd||1}</td>
@@ -1594,6 +1594,15 @@ function openProposta(id){
           <tbody>${parcRows}</tbody>
         </table>
       </div>`:''}
+      ${(p.vigIni||p.vigFim||p.vigTexto)?`
+      <div style="border:2px solid var(--g);border-radius:8px;padding:10px 16px;margin-bottom:10px;background:var(--gl);display:flex;align-items:center;gap:16px">
+        <div style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.05em">Vigência</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text)">
+          ${p.vigTexto||'12 meses'}
+          ${(p.vigIni&&p.vigFim)?'<span style="font-weight:400;color:var(--muted);font-size:12px"> · '+fmtData(p.vigIni)+' a '+fmtData(p.vigFim)+'</span>':''}
+          ${(p.vigIni&&!p.vigFim)?'<span style="font-weight:400;color:var(--muted);font-size:12px"> · a partir de '+fmtData(p.vigIni)+'</span>':''}
+        </div>
+      </div>`:''}
       ${p.obs?`<div style="padding:10px 12px;background:var(--hover);border-radius:8px;font-size:12px"><strong>Obs:</strong> ${p.obs}</div>`:''}
     </div>
     <div class="mof">
@@ -1643,7 +1652,15 @@ function renderEditorPropostaTela(){
       <td style="padding:12px 6px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;vertical-align:top">${it.n}</td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top">
         <input class="fi" value="${it.titulo||''}" placeholder="Título do serviço" oninput="_propostaEdit.itens[${idx}].titulo=this.value" style="font-weight:600;font-size:13px;margin-bottom:6px;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:2px 4px;background:transparent">
-        <textarea class="fi" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
+        <div style="display:flex;gap:4px;margin-bottom:4px">
+          <button type="button" onclick="fmtItem(${idx},'bold')" title="Negrito" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:12px;font-weight:700;cursor:pointer;line-height:1.4">B</button>
+          <button type="button" onclick="fmtItem(${idx},'italic')" title="Itálico" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:12px;font-style:italic;cursor:pointer;line-height:1.4">I</button>
+          <button type="button" onclick="fmtItem(${idx},'color','#1a7a4a')" title="Verde" style="background:#1a7a4a;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
+          <button type="button" onclick="fmtItem(${idx},'color','#c0392b')" title="Vermelho" style="background:#c0392b;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
+          <button type="button" onclick="fmtItem(${idx},'color','#2563eb')" title="Azul" style="background:#2563eb;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
+          <button type="button" onclick="fmtItem(${idx},'clear')" title="Limpar formatação" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;cursor:pointer;line-height:1.4;color:var(--muted)">×</button>
+        </div>
+        <textarea class="fi prop-desc-ta" id="desc-ta-${idx}" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
       </td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right">
         <input class="fi" type="text" inputmode="decimal" value="${fmtR(it.vunit||0)}" oninput="_propostaEdit.itens[${idx}].vunit=parseBR(this.value);calcSubtotal(${idx})" onblur="this.value=fmtR(_propostaEdit.itens[${idx}].vunit||0)" style="text-align:right;font-size:13px">
@@ -1711,6 +1728,11 @@ function renderEditorPropostaTela(){
           </div>
         </div>
         <div class="fg"><label class="fl">Obs / Projeto</label><input class="fi" value="${p.obs||''}" placeholder="Ex: ABC Prosperity" oninput="_propostaEdit.obs=this.value"></div>
+        <div class="frow" style="margin-top:4px;align-items:center">
+          <div class="fg"><label class="fl">Vigência — início</label><input class="fi" type="date" value="${p.vigIni||''}" oninput="_propostaEdit.vigIni=this.value"></div>
+          <div class="fg"><label class="fl">Vigência — fim</label><input class="fi" type="date" value="${p.vigFim||''}" oninput="_propostaEdit.vigFim=this.value"></div>
+          <div class="fg" style="flex:2"><label class="fl">Texto de vigência</label><input class="fi" value="${p.vigTexto||'12 meses'}" placeholder="Ex: 12 meses" oninput="_propostaEdit.vigTexto=this.value"></div>
+        </div>
       </div>
 
       <!-- CLIENTE -->
@@ -1818,6 +1840,28 @@ function calcTotalVisivel(p){
     const desc=i.desc_pct?sub*(i.desc_pct/100):0;
     return s+sub-desc;
   },0);
+}
+
+function fmtItem(idx, tipo, cor){
+  const ta=document.getElementById('desc-ta-'+idx);
+  if(!ta)return;
+  const start=ta.selectionStart, end=ta.selectionEnd;
+  const sel=ta.value.substring(start,end);
+  if(!sel&&tipo!=='clear')return;
+  let rep='';
+  if(tipo==='bold') rep='**'+sel+'**';
+  else if(tipo==='italic') rep='_'+sel+'_';
+  else if(tipo==='color') rep='[color='+cor+']'+sel+'[/color]';
+  else if(tipo==='clear'){
+    // Remove marcações do texto inteiro
+    ta.value=ta.value.replace(/\*\*(.*?)\*\*/g,'$1').replace(/_(.*?)_/g,'$1').replace(/\[color=[^\]]+\](.*?)\[\/color\]/g,'$1');
+    _propostaEdit.itens[idx].descricao=ta.value;
+    return;
+  }
+  ta.value=ta.value.substring(0,start)+rep+ta.value.substring(end);
+  _propostaEdit.itens[idx].descricao=ta.value;
+  ta.selectionStart=start;ta.selectionEnd=start+rep.length;
+  ta.focus();
 }
 
 function calcSubtotal(idx){
@@ -2025,6 +2069,14 @@ function salvarClienteRapidoEditor(){
 }
 
 // ---- IMPRIMIR / PDF ----
+function renderFmt(txt){
+  if(!txt)return '';
+  return txt
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/_(.*?)_/g,'<em>$1</em>')
+    .replace(/\[color=([^\]]+)\](.*?)\[\/color\]/g,'<span style="color:$1">$2</span>');
+}
+
 function imprimirProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const total=calcTotal(p);
@@ -2041,7 +2093,7 @@ function imprimirProposta(id){
       ${hasDesc?`<td style="padding:6px 8px;border:0.5px solid #ccc;text-align:center;font-size:11px">${it.desc_pct||0}%</td>`:''}
       <td style="padding:6px 8px;border:0.5px solid #ccc;text-align:right;font-size:11px;font-weight:600;white-space:nowrap">R$ ${fmtR(tot)}</td>
     </tr>
-    ${it.descricao?`<tr><td colspan="${hasDesc?6:5}" style="padding:6px 8px 10px 8px;border:0.5px solid #ccc;border-top:none;font-size:11px;color:#444;white-space:pre-line">${it.descricao}</td></tr>`:''}`;
+    ${it.descricao?`<tr><td colspan="${hasDesc?6:5}" style="padding:6px 8px 10px 8px;border:0.5px solid #ccc;border-top:none;font-size:11px;color:#444;white-space:pre-line">${renderFmt(it.descricao)}</td></tr>`:''}`;
   }).join('');
 
   const parcHTML=(p.parcelas||[]).length?`
@@ -2092,6 +2144,18 @@ function imprimirProposta(id){
       <td style="padding:7px 10px;border:0.5px solid #ccc"><strong>Projeto:</strong> ${p.obs||p.cliente}</td>
       <td style="padding:7px 10px;border:0.5px solid #ccc;white-space:nowrap"><strong>Validade:</strong> ${p.validade||15} dias</td>
       <td style="padding:7px 10px;border:0.5px solid #ccc;white-space:nowrap"><strong>Data:</strong> ${fmtData(p.data)}</td>
+    </tr>
+  </table>
+  ${(p.vigIni||p.vigFim||p.vigTexto)?`
+  <div style="border:2px solid #1a7a4a;border-radius:6px;padding:10px 16px;margin-bottom:16px;background:#f0faf4;display:flex;align-items:center;gap:24px">
+    <div style="font-size:12px;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.05em">Vigência</div>
+    <div style="font-size:13px;font-weight:700;color:#111">
+      ${p.vigTexto||'12 meses'}
+      ${(p.vigIni&&p.vigFim)?` <span style="font-weight:400;color:#444;font-size:12px">· ${fmtData(p.vigIni)} a ${fmtData(p.vigFim)}</span>`:''}
+      ${(p.vigIni&&!p.vigFim)?` <span style="font-weight:400;color:#444;font-size:12px">· a partir de ${fmtData(p.vigIni)}</span>`:''}
+    </div>
+  </div>`:''}
+  <table style="display:none"><tr>
     </tr>
   </table>
   <h3 style="font-size:12px;font-weight:700;margin-bottom:8px">Itens</h3>
@@ -2215,6 +2279,7 @@ function saveNewProposta(){
     cli_endereco:c.endereco||'',cli_contato:'',
     itens:[],parcelas:[],tipo:'Mensal',condForma:'Pix',
     ocultarTotal:false,consid:CONSID_DEFAULT,arquivada:false,
+    vigTexto:'12 meses',vigIni:'',vigFim:'',
   };
   propostas.unshift(nova);
   fsUpsert('propostas',nova);

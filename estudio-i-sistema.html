@@ -1518,7 +1518,12 @@ const ESTUDIO_DADOS={
   cidade:'Sagrada Família - Belo Horizonte - MG',
 };
 
-const CONSID_DEFAULT=`- Valores acima não incluem produção gráfica e áudio visual;\n- Valores acima não incluem deslocamento, alimentação e hospedagem;\n- Valores de impulsionamento/anúncios/hospedagem de site(s) e ferramenta de envio de e-mail por conta do cliente;\n- A proposta não contempla Assessoria de Comunicação e nem Assessoria de Imprensa.`;
+const VIG_TEXTO_DEFAULT=`O presente instrumento vigorará pelo prazo de 12 (doze) meses, com início na data de assinatura, renovando-se automaticamente por iguais períodos, salvo manifestação contrária com antecedência mínima de 30 (trinta) dias, nos termos do Contrato de Prestação de Serviços de Comunicação registrado junto ao Cartório de Títulos e Documentos da Comarca de Belo Horizonte sob n.° 01693257.`;
+
+const CONSID_DEFAULT=`- Valores acima não incluem produção gráfica e áudio visual;
+- Valores acima não incluem deslocamento, alimentação e hospedagem;
+- Valores de impulsionamento/anúncios/hospedagem de site(s) e ferramenta de envio de e-mail por conta do cliente;
+- A proposta não contempla Assessoria de Comunicação e nem Assessoria de Imprensa.`;
 
 const ACEITE_TEXTO=`O aceite desta PROPOSTA COMERCIAL representa total concordância e adesão aos termos e condições do "CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE COMUNICAÇÃO", registrado junto ao Cartório de Títulos e Documentos da Comarca de Belo Horizonte, sob o n.° 01693257, que, juntamente com esta PROPOSTA, forma um só instrumento.`;
 
@@ -1539,7 +1544,7 @@ function openProposta(id){
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;font-size:12px">${i.n}</td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0">
         <strong style="font-size:13px">${i.titulo}</strong>
-        ${i.descricao?`<div style="font-size:11px;color:#555;margin-top:3px;white-space:pre-line">${renderFmt(i.descricao)}</div>`:''}
+        ${i.descricao?`<div style="font-size:11px;color:#555;margin-top:3px;white-space:pre-line">${i.descricao}</div>`:''}
       </td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;text-align:right;font-size:12px;white-space:nowrap">R$ ${fmtR(i.vunit||0)}</td>
       <td style="padding:7px 8px;border-bottom:.5px solid #e0e0e0;text-align:center;font-size:12px">${i.qtd||1}</td>
@@ -1594,15 +1599,6 @@ function openProposta(id){
           <tbody>${parcRows}</tbody>
         </table>
       </div>`:''}
-      ${(p.vigIni||p.vigFim||p.vigTexto)?`
-      <div style="border:2px solid var(--g);border-radius:8px;padding:10px 16px;margin-bottom:10px;background:var(--gl);display:flex;align-items:center;gap:16px">
-        <div style="font-size:10px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.05em">Vigência</div>
-        <div style="font-size:14px;font-weight:700;color:var(--text)">
-          ${p.vigTexto||'12 meses'}
-          ${(p.vigIni&&p.vigFim)?'<span style="font-weight:400;color:var(--muted);font-size:12px"> · '+fmtData(p.vigIni)+' a '+fmtData(p.vigFim)+'</span>':''}
-          ${(p.vigIni&&!p.vigFim)?'<span style="font-weight:400;color:var(--muted);font-size:12px"> · a partir de '+fmtData(p.vigIni)+'</span>':''}
-        </div>
-      </div>`:''}
       ${p.obs?`<div style="padding:10px 12px;background:var(--hover);border-radius:8px;font-size:12px"><strong>Obs:</strong> ${p.obs}</div>`:''}
     </div>
     <div class="mof">
@@ -1652,15 +1648,7 @@ function renderEditorPropostaTela(){
       <td style="padding:12px 6px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px;vertical-align:top">${it.n}</td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top">
         <input class="fi" value="${it.titulo||''}" placeholder="Título do serviço" oninput="_propostaEdit.itens[${idx}].titulo=this.value" style="font-weight:600;font-size:13px;margin-bottom:6px;border:none;border-bottom:1px dashed var(--border);border-radius:0;padding:2px 4px;background:transparent">
-        <div style="display:flex;gap:4px;margin-bottom:4px">
-          <button type="button" onclick="fmtItem(${idx},'bold')" title="Negrito" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:12px;font-weight:700;cursor:pointer;line-height:1.4">B</button>
-          <button type="button" onclick="fmtItem(${idx},'italic')" title="Itálico" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:12px;font-style:italic;cursor:pointer;line-height:1.4">I</button>
-          <button type="button" onclick="fmtItem(${idx},'color','#1a7a4a')" title="Verde" style="background:#1a7a4a;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
-          <button type="button" onclick="fmtItem(${idx},'color','#c0392b')" title="Vermelho" style="background:#c0392b;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
-          <button type="button" onclick="fmtItem(${idx},'color','#2563eb')" title="Azul" style="background:#2563eb;border:none;border-radius:4px;padding:2px 10px;cursor:pointer;line-height:1.4"> </button>
-          <button type="button" onclick="fmtItem(${idx},'clear')" title="Limpar formatação" style="background:var(--hover);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;cursor:pointer;line-height:1.4;color:var(--muted)">×</button>
-        </div>
-        <textarea class="fi prop-desc-ta" id="desc-ta-${idx}" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
+        <textarea class="fi" rows="4" oninput="_propostaEdit.itens[${idx}].descricao=this.value" style="font-size:12px;color:var(--muted);resize:vertical;border:1px solid var(--border);border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box;min-height:80px" placeholder="Descreva os serviços inclusos neste item...">${it.descricao||''}</textarea>
       </td>
       <td style="padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:right">
         <input class="fi" type="text" inputmode="decimal" value="${fmtR(it.vunit||0)}" oninput="_propostaEdit.itens[${idx}].vunit=parseBR(this.value);calcSubtotal(${idx})" onblur="this.value=fmtR(_propostaEdit.itens[${idx}].vunit||0)" style="text-align:right;font-size:13px">
@@ -1728,10 +1716,14 @@ function renderEditorPropostaTela(){
           </div>
         </div>
         <div class="fg"><label class="fl">Obs / Projeto</label><input class="fi" value="${p.obs||''}" placeholder="Ex: ABC Prosperity" oninput="_propostaEdit.obs=this.value"></div>
-        <div class="frow" style="margin-top:4px;align-items:center">
-          <div class="fg"><label class="fl">Vigência — início</label><input class="fi" type="date" value="${p.vigIni||''}" oninput="_propostaEdit.vigIni=this.value"></div>
-          <div class="fg"><label class="fl">Vigência — fim</label><input class="fi" type="date" value="${p.vigFim||''}" oninput="_propostaEdit.vigFim=this.value"></div>
-          <div class="fg" style="flex:2"><label class="fl">Texto de vigência</label><input class="fi" value="${p.vigTexto||'12 meses'}" placeholder="Ex: 12 meses" oninput="_propostaEdit.vigTexto=this.value"></div>
+        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Vigência</div>
+          <div class="frow" style="margin-bottom:6px">
+            <div class="fg"><label class="fl">Data de início</label><input class="fi" type="date" value="${p.vigIni||''}" oninput="_propostaEdit.vigIni=this.value" placeholder="Preencher na assinatura"></div>
+            <div class="fg"><label class="fl">Data de fim</label><input class="fi" type="date" value="${p.vigFim||''}" oninput="_propostaEdit.vigFim=this.value"></div>
+            <div class="fg" style="flex:0 0 140px"><label class="fl">Duração</label><input class="fi" value="${p.vigDuracao||'12 meses'}" oninput="_propostaEdit.vigDuracao=this.value" placeholder="Ex: 12 meses"></div>
+          </div>
+          <div class="fg"><label class="fl">Cláusula de vigência (aparece no PDF)</label><textarea class="fi" rows="3" oninput="_propostaEdit.vigClausula=this.value" style="font-size:11px;resize:vertical">${p.vigClausula||VIG_TEXTO_DEFAULT}</textarea></div>
         </div>
       </div>
 
@@ -1804,10 +1796,11 @@ function renderEditorPropostaTela(){
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em">Condições de pagamento</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <select class="fi" style="font-size:11px;padding:5px 8px;width:auto" onchange="_propostaEdit.condForma=this.value">${formaOpts}</select>
-            <input class="fi" type="number" id="parc-n" value="${(p.parcelas||[]).length||1}" min="1" max="60" style="width:55px;font-size:11px;padding:5px 8px" placeholder="N">
+          class="fi" type="number" id="parc-n" value="${(p.parcelas||[]).length||1}" min="1" max="60" style="width:55px;font-size:11px;padding:5px 8px" placeholder="N" oninput="atualizarPreviewParcela()">
             <span style="font-size:11px;color:var(--muted)">× R$</span>
-            <input class="fi" type="text" inputmode="decimal" id="parc-val" value="${totalVisivel>0?fmtR(Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100):''}" style="width:90px;font-size:11px;padding:5px 8px;text-align:right" placeholder="0,00">0?Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100:''}" step="0.01" style="width:90px;font-size:11px;padding:5px 8px" placeholder="Valor">
-            <span style="font-size:11px;color:var(--muted)">a partir de</span>
+            <input class="fi" type="text" inputmode="decimal" id="parc-val" value="" style="width:100px;font-size:11px;padding:5px 8px;text-align:right" placeholder="${totalVisivel>0?fmtR(Math.round(totalVisivel/Math.max((p.parcelas||[]).length,1)*100)/100):'auto'}" oninput="atualizarPreviewParcela()">
+            <span style="font-size:11px;color:var(--g);font-weight:600" id="parc-preview"></span>
+            <span style="font-size:11px;color:var(--muted)">1º vencimento</span>
             <input class="fi" type="date" id="parc-inicio" value="${HOJE_STR}" style="font-size:11px;padding:5px 8px">
             <button onclick="gerarParcelasAuto()" style="background:var(--g);color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="ti ti-wand"></i> Gerar</button>
             <button onclick="adicionarParcelaProposta()" style="background:var(--hover);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer"><i class="ti ti-plus"></i> Manual</button>
@@ -1840,28 +1833,6 @@ function calcTotalVisivel(p){
     const desc=i.desc_pct?sub*(i.desc_pct/100):0;
     return s+sub-desc;
   },0);
-}
-
-function fmtItem(idx, tipo, cor){
-  const ta=document.getElementById('desc-ta-'+idx);
-  if(!ta)return;
-  const start=ta.selectionStart, end=ta.selectionEnd;
-  const sel=ta.value.substring(start,end);
-  if(!sel&&tipo!=='clear')return;
-  let rep='';
-  if(tipo==='bold') rep='**'+sel+'**';
-  else if(tipo==='italic') rep='_'+sel+'_';
-  else if(tipo==='color') rep='[color='+cor+']'+sel+'[/color]';
-  else if(tipo==='clear'){
-    // Remove marcações do texto inteiro
-    ta.value=ta.value.replace(/\*\*(.*?)\*\*/g,'$1').replace(/_(.*?)_/g,'$1').replace(/\[color=[^\]]+\](.*?)\[\/color\]/g,'$1');
-    _propostaEdit.itens[idx].descricao=ta.value;
-    return;
-  }
-  ta.value=ta.value.substring(0,start)+rep+ta.value.substring(end);
-  _propostaEdit.itens[idx].descricao=ta.value;
-  ta.selectionStart=start;ta.selectionEnd=start+rep.length;
-  ta.focus();
 }
 
 function calcSubtotal(idx){
@@ -2006,9 +1977,21 @@ function removerParcelaProposta(idx){
   renderEditorPropostaTela();
 }
 
+function atualizarPreviewParcela(){
+  const n=parseInt(document.getElementById('parc-n')?.value)||1;
+  const total=calcTotalVisivel(_propostaEdit);
+  const valInput=document.getElementById('parc-val')?.value;
+  const val=valInput&&parseBR(valInput)>0?parseBR(valInput):Math.round(total/n*100)/100;
+  const prev=document.getElementById('parc-preview');
+  if(prev&&val>0)prev.textContent='= '+n+'× R$ '+fmtR(val)+' = R$ '+fmtR(val*n);
+}
+
 function gerarParcelasAuto(){
   const n=parseInt(document.getElementById('parc-n').value)||1;
-  const val=parseBR(document.getElementById('parc-val').value)||calcTotalVisivel(_propostaEdit)/n;
+  const total=calcTotalVisivel(_propostaEdit);
+  const valInput=document.getElementById('parc-val').value;
+  // Se usuário digitou valor, usa; senão divide total por n
+  const val=valInput&&parseBR(valInput)>0 ? parseBR(valInput) : Math.round(total/n*100)/100;
   const inicio=document.getElementById('parc-inicio').value||HOJE_STR;
   const forma=_propostaEdit.condForma||'Pix';
   const parcelas=[];
@@ -2023,6 +2006,7 @@ function gerarParcelasAuto(){
   }
   _propostaEdit.parcelas=parcelas;
   renderEditorPropostaTela();
+  toast(`${n} parcela${n>1?'s':''} de R$ ${fmtR(val)} geradas.`);
 }
 
 function salvarPropostaEditada(){
@@ -2069,14 +2053,6 @@ function salvarClienteRapidoEditor(){
 }
 
 // ---- IMPRIMIR / PDF ----
-function renderFmt(txt){
-  if(!txt)return '';
-  return txt
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/_(.*?)_/g,'<em>$1</em>')
-    .replace(/\[color=([^\]]+)\](.*?)\[\/color\]/g,'<span style="color:$1">$2</span>');
-}
-
 function imprimirProposta(id){
   const p=propostas.find(x=>x.id===id);if(!p)return;
   const total=calcTotal(p);
@@ -2093,7 +2069,7 @@ function imprimirProposta(id){
       ${hasDesc?`<td style="padding:6px 8px;border:0.5px solid #ccc;text-align:center;font-size:11px">${it.desc_pct||0}%</td>`:''}
       <td style="padding:6px 8px;border:0.5px solid #ccc;text-align:right;font-size:11px;font-weight:600;white-space:nowrap">R$ ${fmtR(tot)}</td>
     </tr>
-    ${it.descricao?`<tr><td colspan="${hasDesc?6:5}" style="padding:6px 8px 10px 8px;border:0.5px solid #ccc;border-top:none;font-size:11px;color:#444;white-space:pre-line">${renderFmt(it.descricao)}</td></tr>`:''}`;
+    ${it.descricao?`<tr><td colspan="${hasDesc?6:5}" style="padding:6px 8px 10px 8px;border:0.5px solid #ccc;border-top:none;font-size:11px;color:#444;white-space:pre-line">${it.descricao}</td></tr>`:''}`;
   }).join('');
 
   const parcHTML=(p.parcelas||[]).length?`
@@ -2146,18 +2122,14 @@ function imprimirProposta(id){
       <td style="padding:7px 10px;border:0.5px solid #ccc;white-space:nowrap"><strong>Data:</strong> ${fmtData(p.data)}</td>
     </tr>
   </table>
-  ${(p.vigIni||p.vigFim||p.vigTexto)?`
-  <div style="border:2px solid #1a7a4a;border-radius:6px;padding:10px 16px;margin-bottom:16px;background:#f0faf4;display:flex;align-items:center;gap:24px">
-    <div style="font-size:12px;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.05em">Vigência</div>
-    <div style="font-size:13px;font-weight:700;color:#111">
-      ${p.vigTexto||'12 meses'}
-      ${(p.vigIni&&p.vigFim)?` <span style="font-weight:400;color:#444;font-size:12px">· ${fmtData(p.vigIni)} a ${fmtData(p.vigFim)}</span>`:''}
-      ${(p.vigIni&&!p.vigFim)?` <span style="font-weight:400;color:#444;font-size:12px">· a partir de ${fmtData(p.vigIni)}</span>`:''}
+  ${(p.vigClausula||p.vigDuracao)?`
+  <div style="border:1.5px solid #1a7a4a;border-radius:5px;padding:10px 16px;margin-bottom:16px;background:#f0faf4">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+      <span style="font-size:11px;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.05em">Vigência</span>
+      <span style="font-size:13px;font-weight:700;color:#111">${p.vigDuracao||'12 meses'}${p.vigIni&&p.vigFim?' · '+fmtData(p.vigIni)+' a '+fmtData(p.vigFim):p.vigIni?' · a partir de '+fmtData(p.vigIni):''}</span>
     </div>
+    <p style="font-size:10px;color:#444;margin:0;line-height:1.5">${p.vigClausula||VIG_TEXTO_DEFAULT}</p>
   </div>`:''}
-  <table style="display:none"><tr>
-    </tr>
-  </table>
   <h3 style="font-size:12px;font-weight:700;margin-bottom:8px">Itens</h3>
   <table style="width:100%;border-collapse:collapse;margin-bottom:4px">
     <thead><tr style="background:#f5f5f5">
@@ -2174,7 +2146,7 @@ function imprimirProposta(id){
   ${parcHTML}
   <div class="page-break"></div>
   <h3 style="font-size:12px;font-weight:700;margin:0 0 8px">CONSIDERAÇÕES FINAIS</h3>
-  <p style="font-size:11px;white-space:pre-line;margin-bottom:16px">${(p.consid||CONSID_DEFAULT)}</p>
+  <p style="font-size:11px;white-space:pre-line;margin-bottom:16px">${renderFmt(p.consid||CONSID_DEFAULT)}</p>
   <h3 style="font-size:12px;font-weight:700;margin:16px 0 6px">DO ACEITE</h3>
   <p style="font-size:11px">${ACEITE_TEXTO}</p>
   <h3 style="font-size:12px;font-weight:700;margin:16px 0 6px">INFORMAÇÕES ADICIONAIS</h3>
@@ -2278,8 +2250,9 @@ function saveNewProposta(){
     cli_email:c.email||'',cli_cidade:c.cidade||'',
     cli_endereco:c.endereco||'',cli_contato:'',
     itens:[],parcelas:[],tipo:'Mensal',condForma:'Pix',
-    ocultarTotal:false,consid:CONSID_DEFAULT,arquivada:false,
-    vigTexto:'12 meses',vigIni:'',vigFim:'',
+    ocultarTotal:false,consid:CONSID_DEFAULT,
+    vigIni:'',vigFim:'',vigDuracao:'12 meses',vigClausula:VIG_TEXTO_DEFAULT,
+    arquivada:false,
   };
   propostas.unshift(nova);
   fsUpsert('propostas',nova);

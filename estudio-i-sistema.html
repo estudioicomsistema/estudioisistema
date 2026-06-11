@@ -1550,7 +1550,10 @@ const VIG_TEXTO_DEFAULT=`O presente instrumento vigorará pelo prazo de 12 (doze
 const CONSID_DEFAULT=`- Valores acima não incluem produção gráfica e áudio visual;
 - Valores acima não incluem deslocamento, alimentação e hospedagem;
 - Valores de impulsionamento/anúncios/hospedagem de site(s) e ferramenta de envio de e-mail por conta do cliente;
-- A proposta não contempla Assessoria de Comunicação e nem Assessoria de Imprensa.`;
+- A proposta não contempla Assessoria de Comunicação e nem Assessoria de Imprensa.
+- Vigência de 1 ano a partir da data de assinatura desta proposta.
+
+O aceite desta PROPOSTA COMERCIAL representa total concordância e adesão aos termos e condições do "CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE COMUNICAÇÃO", registrado junto ao Cartório de Títulos e Documentos da Comarca de Belo Horizonte, sob o n.° 01693257, que, juntamente com esta PROPOSTA, forma um só instrumento.`;
 
 const ACEITE_TEXTO=`O aceite desta PROPOSTA COMERCIAL representa total concordância e adesão aos termos e condições do "CONTRATO DE PRESTAÇÃO DE SERVIÇOS DE COMUNICAÇÃO", registrado junto ao Cartório de Títulos e Documentos da Comarca de Belo Horizonte, sob o n.° 01693257, que, juntamente com esta PROPOSTA, forma um só instrumento.`;
 
@@ -1871,15 +1874,36 @@ function calcSubtotal(idx){
   const tot=sub-desc;
   const el=document.getElementById('pitem-sub-'+idx);
   if(el)el.textContent='R$ '+fmtR(tot);
-  // Atualizar total geral
+  recalcularTotalEParcelas();
+}
+
+function recalcularTotalEParcelas(){
+  if(!_propostaEdit)return;
+  const total=calcTotalVisivel(_propostaEdit);
+  // Atualizar display do total
   const telTotal=document.getElementById('te-total-display');
-  if(telTotal)telTotal.textContent='R$ '+fmtR(calcTotalVisivel(_propostaEdit));
+  if(telTotal)telTotal.textContent='R$ '+fmtR(total);
+  // Redistribuir parcelas automaticamente mantendo número e datas
+  const parcs=_propostaEdit.parcelas||[];
+  if(parcs.length>0){
+    const valPorParcela=Math.round(total/parcs.length*100)/100;
+    parcs.forEach((pc,i)=>{
+      pc.valor=valPorParcela;
+      // Atualizar input na tela se existir
+      const inp=document.querySelector(`#prop-parc-tbody tr:nth-child(${i+1}) input[type="text"]`);
+      if(inp)inp.value=fmtR(valPorParcela);
+    });
+    // Mostrar aviso de redistribuição
+    const prev=document.getElementById('parc-preview');
+    if(prev&&total>0)prev.textContent=`↻ ${parcs.length}× R$ ${fmtR(valPorParcela)} = R$ ${fmtR(valPorParcela*parcs.length)}`;
+  }
 }
 
 function toggleOcultarItem(idx){
   if(!_propostaEdit)return;
   _propostaEdit.itens[idx].oculto=!_propostaEdit.itens[idx].oculto;
   renderEditorPropostaTela();
+  recalcularTotalEParcelas();
 }
 
 function preencherCabecalhoEditorTela(nomeCliente){
